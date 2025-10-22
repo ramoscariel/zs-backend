@@ -18,11 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\Domain\" />
-    <Folder Include="Models\DTO\" />
-    <Folder Include="Mappings\" />
-    <Folder Include="Data\" />
-    <Folder Include="Repositories\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>
