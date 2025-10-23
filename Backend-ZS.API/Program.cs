@@ -5,26 +5,36 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// --- CORS: permitir llamadas desde el front ---
+var corsPolicy = "_nextCors";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(corsPolicy, p =>
+        p.WithOrigins("http://localhost:3000", "https://localhost:3000") // Next dev
+         .AllowAnyHeader()
+         .AllowAnyMethod()
+    // Si en algún momento usas cookies/autenticación, agrega:
+    // .AllowCredentials()
+    );
+});
 
+// MVC
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Inject DbContext
+// DbContext
 builder.Services.AddDbContext<ZsDbContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("ZSConnectionString")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ZSConnectionString")));
 
-// Inject AutoMapper
+// AutoMapper
 builder.Services.AddAutoMapper(cfg => { }, typeof(AutoMapperProfiles));
 
-// Inject Repositories
+// Repos
 builder.Services.AddScoped<IClientRepository, SqlClientRepository>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -33,8 +43,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// --- activar CORS antes de MapControllers ---
+app.UseCors(corsPolicy);
+
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
