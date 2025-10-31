@@ -13,9 +13,9 @@ namespace Backend_ZS.API.Controllers
     {
         private readonly IClientRepository clientRepository;
         private readonly IMapper mapper;
-        public ClientsController(IClientRepository walkRepository, IMapper mapper)
+        public ClientsController(IClientRepository clientRepository, IMapper mapper)
         {
-            this.clientRepository = walkRepository;
+            this.clientRepository = clientRepository;
             this.mapper = mapper;
         }
 

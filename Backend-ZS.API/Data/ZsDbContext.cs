@@ -12,7 +12,7 @@ namespace Backend_ZS.API.Data
         }
 
         public DbSet<Client> Clients { get; set; }
-
+        public DbSet<BarProduct> BarProducts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -104,8 +104,69 @@ namespace Backend_ZS.API.Data
                 }
             };
 
+            var barProducts = new List<BarProduct>()
+            {
+                new BarProduct
+                {
+                    Id = Guid.Parse("626e7d51-6573-4b46-b789-36756d9cffb5"),
+                    Name = "Lager Beer",
+                    Qty = 120,
+                    UnitPrice = 3.50
+                },
+                new BarProduct
+                {
+                    Id = Guid.Parse("66274ceb-b662-4f3e-b413-7ebc64426af7"),
+                    Name = "Whiskey Shot",
+                    Qty = 80,
+                    UnitPrice = 5.75
+                },
+                new BarProduct
+                {
+                    Id = Guid.Parse("09df7b74-9cb1-4605-9fc7-5054b109c285"),
+                    Name = "Red Wine Glass",
+                    Qty = 60,
+                    UnitPrice = 6.25
+                },
+                new BarProduct
+                {
+                    Id = Guid.Parse("bd68b7a0-bce6-4159-818a-4bc084ae45fe"),
+                    Name = "Margarita",
+                    Qty = 45,
+                    UnitPrice = 7.50
+                },
+                new BarProduct
+                {
+                    Id = Guid.Parse("8c758180-2375-4b27-bea4-d25e8a657608"),
+                    Name = "Gin Tonic",
+                    Qty = 70,
+                    UnitPrice = 6.00
+                },
+                new BarProduct
+                {
+                    Id = Guid.Parse("ccde323d-2a39-4cd1-96d8-a634d3a87d33"),
+                    Name = "Rum & Coke",
+                    Qty = 90,
+                    UnitPrice = 5.25
+                },
+                new BarProduct
+                {
+                    Id = Guid.Parse("afc8b253-4a00-4e0b-8993-5e74605ca49f"),
+                    Name = "Tequila Shot",
+                    Qty = 100,
+                    UnitPrice = 4.75
+                },
+                new BarProduct
+                {
+                    Id = Guid.Parse("16a4efed-7353-48ed-b046-2532bdc62c74"),
+                    Name = "Craft IPA Beer",
+                    Qty = 110,
+                    UnitPrice = 4.25
+                }
+            };
+
             modelBuilder.Entity<Client>().HasData(clients);
 
+            modelBuilder.Entity<BarProduct>().HasData(barProducts);
         }
     }
 }

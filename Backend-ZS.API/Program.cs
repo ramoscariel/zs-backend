@@ -32,6 +32,7 @@ builder.Services.AddAutoMapper(cfg => { }, typeof(AutoMapperProfiles));
 
 // Repos
 builder.Services.AddScoped<IClientRepository, SqlClientRepository>();
+builder.Services.AddScoped<IBarProductRepository, SqlBarProductRepository>();
 
 var app = builder.Build();
 

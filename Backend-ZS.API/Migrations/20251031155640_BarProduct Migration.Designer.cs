@@ -4,6 +4,7 @@ using Backend_ZS.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend_ZS.API.Migrations
 {
     [DbContext(typeof(ZsDbContext))]
-    partial class ZsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251031155640_BarProduct Migration")]
+    partial class BarProductMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,64 +44,6 @@ namespace Backend_ZS.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("BarProducts");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("626e7d51-6573-4b46-b789-36756d9cffb5"),
-                            Name = "Lager Beer",
-                            Qty = 120,
-                            UnitPrice = 3.5
-                        },
-                        new
-                        {
-                            Id = new Guid("66274ceb-b662-4f3e-b413-7ebc64426af7"),
-                            Name = "Whiskey Shot",
-                            Qty = 80,
-                            UnitPrice = 5.75
-                        },
-                        new
-                        {
-                            Id = new Guid("09df7b74-9cb1-4605-9fc7-5054b109c285"),
-                            Name = "Red Wine Glass",
-                            Qty = 60,
-                            UnitPrice = 6.25
-                        },
-                        new
-                        {
-                            Id = new Guid("bd68b7a0-bce6-4159-818a-4bc084ae45fe"),
-                            Name = "Margarita",
-                            Qty = 45,
-                            UnitPrice = 7.5
-                        },
-                        new
-                        {
-                            Id = new Guid("8c758180-2375-4b27-bea4-d25e8a657608"),
-                            Name = "Gin Tonic",
-                            Qty = 70,
-                            UnitPrice = 6.0
-                        },
-                        new
-                        {
-                            Id = new Guid("ccde323d-2a39-4cd1-96d8-a634d3a87d33"),
-                            Name = "Rum & Coke",
-                            Qty = 90,
-                            UnitPrice = 5.25
-                        },
-                        new
-                        {
-                            Id = new Guid("afc8b253-4a00-4e0b-8993-5e74605ca49f"),
-                            Name = "Tequila Shot",
-                            Qty = 100,
-                            UnitPrice = 4.75
-                        },
-                        new
-                        {
-                            Id = new Guid("16a4efed-7353-48ed-b046-2532bdc62c74"),
-                            Name = "Craft IPA Beer",
-                            Qty = 110,
-                            UnitPrice = 4.25
-                        });
                 });
 
             modelBuilder.Entity("Backend_ZS.API.Models.Domain.Client", b =>

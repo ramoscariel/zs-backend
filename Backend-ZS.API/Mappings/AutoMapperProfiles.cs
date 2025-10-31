@@ -11,6 +11,10 @@ namespace Backend_ZS.API.Mappings
             // Client Mappings
             CreateMap<Client, ClientDto>();
             CreateMap<ClientRequestDto, Client>();
+
+            // BarProduct Mappings
+            CreateMap<BarProduct, BarProductDto>();
+            CreateMap<BarProductRequestDto, BarProduct>();
         }
     }
 }
