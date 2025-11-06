@@ -2,7 +2,6 @@
 using Backend_ZS.API.Models.Domain;
 using Backend_ZS.API.Models.DTO;
 using Backend_ZS.API.Repositories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend_ZS.API.Controllers

@@ -8,5 +8,9 @@
         public string Email { get; set; }
         public string Address { get; set; }
         public string Number { get; set; }
+
+
+        // Navigation Properties
+        public ICollection<Transaction> Transactions { get; set; }
     }
 }

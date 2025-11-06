@@ -4,6 +4,7 @@ using Backend_ZS.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend_ZS.API.Migrations
 {
     [DbContext(typeof(ZsDbContext))]
-    partial class ZsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251105221745_Hail Mary Productos")]
+    partial class HailMaryProductos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -307,7 +310,7 @@ namespace Backend_ZS.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TransactionItems", (string)null);
+                    b.ToTable("TransactionItem", (string)null);
 
                     b.HasDiscriminator<string>("TransactionType").HasValue("TransactionItem");
 

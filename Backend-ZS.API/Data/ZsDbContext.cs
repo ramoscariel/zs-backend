@@ -1,6 +1,5 @@
 ﻿using Backend_ZS.API.Models.Domain;
 using Microsoft.EntityFrameworkCore;
-using System.Xml;
 
 namespace Backend_ZS.API.Data
 {
@@ -12,11 +11,49 @@ namespace Backend_ZS.API.Data
         }
 
         public DbSet<Client> Clients { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<BarOrder> BarOrders { get; set; }
+        public DbSet<BarOrderDetail> BarOrderDetails { get; set; }
         public DbSet<BarProduct> BarProducts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // TransactionItem TPH -> physical table "TransactionItem"
+            modelBuilder.Entity<TransactionItem>(b =>
+            {
+                b.ToTable("TransactionItems");
+                b.HasKey(t => t.Id);
+                b.HasDiscriminator<string>("TransactionType")
+                 .HasValue<BarOrder>("BarOrder");
+            });
+
+            // Transaction table explicit mapping + FK to TransactionItem
+            modelBuilder.Entity<Transaction>(b =>
+            {
+                b.ToTable("Transactions"); // optional but explicit
+                b.HasKey(t => t.Id);
+                b.HasOne(t => t.TransactionItem)
+                 .WithMany() // no back-navigation from TransactionItem in your model
+                 .HasForeignKey(t => t.TransactionItemId)
+                 .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<BarOrderDetail>()
+                .HasKey(d => new { d.BarOrderId, d.BarProductId }); // Composite PK
+
+            modelBuilder.Entity<BarOrderDetail>()
+                .HasOne(d => d.BarOrder)
+                .WithMany(o => o.Details)
+                .HasForeignKey(d => d.BarOrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<BarOrderDetail>()
+                .HasOne(d => d.BarProduct)
+                .WithMany()
+                .HasForeignKey(d => d.BarProductId);
 
             // Data Seeding
 
@@ -165,7 +202,6 @@ namespace Backend_ZS.API.Data
             };
 
             modelBuilder.Entity<Client>().HasData(clients);
-
             modelBuilder.Entity<BarProduct>().HasData(barProducts);
         }
     }

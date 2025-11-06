@@ -4,6 +4,7 @@ using Backend_ZS.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend_ZS.API.Migrations
 {
     [DbContext(typeof(ZsDbContext))]
-    partial class ZsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251105123408_Map Client to Transaction Migration")]
+    partial class MapClienttoTransactionMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -288,7 +291,7 @@ namespace Backend_ZS.API.Migrations
 
                     b.HasIndex("TransactionItemId");
 
-                    b.ToTable("Transactions", (string)null);
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("Backend_ZS.API.Models.Domain.TransactionItem", b =>
@@ -307,7 +310,7 @@ namespace Backend_ZS.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TransactionItems", (string)null);
+                    b.ToTable("TransactionItems");
 
                     b.HasDiscriminator<string>("TransactionType").HasValue("TransactionItem");
 
@@ -343,7 +346,7 @@ namespace Backend_ZS.API.Migrations
             modelBuilder.Entity("Backend_ZS.API.Models.Domain.Transaction", b =>
                 {
                     b.HasOne("Backend_ZS.API.Models.Domain.Client", "Client")
-                        .WithMany("Transactions")
+                        .WithMany()
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -357,7 +360,7 @@ namespace Backend_ZS.API.Migrations
                     b.HasOne("Backend_ZS.API.Models.Domain.TransactionItem", "TransactionItem")
                         .WithMany()
                         .HasForeignKey("TransactionItemId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Client");
@@ -365,11 +368,6 @@ namespace Backend_ZS.API.Migrations
                     b.Navigation("Payment");
 
                     b.Navigation("TransactionItem");
-                });
-
-            modelBuilder.Entity("Backend_ZS.API.Models.Domain.Client", b =>
-                {
-                    b.Navigation("Transactions");
                 });
 
             modelBuilder.Entity("Backend_ZS.API.Models.Domain.BarOrder", b =>
