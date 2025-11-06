@@ -8,6 +8,6 @@ namespace Backend_ZS.API.Models.DTO
         public double Total { get; set; }
 
         // Navigation Property
-        public ICollection<BarOrderDetail> Details { get; set; }
+        public ICollection<BarOrderDetailDto> Details { get; set; }
     }
 }

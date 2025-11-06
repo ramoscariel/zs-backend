@@ -2,7 +2,7 @@
 {
     public abstract class TransactionItem
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         public double Total { get; set; }
     }
 }

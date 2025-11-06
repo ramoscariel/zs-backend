@@ -14,7 +14,8 @@ namespace Backend_ZS.API.Repositories
         public async Task<List<BarOrder>> GetAllAsync()
         {
             return await dbContext.BarOrders
-                .Include("Details")
+                .Include(o => o.Details)
+                    .ThenInclude(d => d.BarProduct)
                 .ToListAsync();
         }
 
@@ -65,11 +66,12 @@ namespace Backend_ZS.API.Repositories
             return existingBarOrder;
         }
 
+        ///
         // BarOrderDetail Operations
+        ///
         public async Task<BarOrderDetail?> GetDetailAsync(Guid orderId, Guid productId)
         {
             return await dbContext.Set<BarOrderDetail>()
-                .Include(d => d.BarOrder)
                 .Include(d => d.BarProduct)
                 .FirstOrDefaultAsync(d => d.BarOrderId == orderId && d.BarProductId == productId);
         }
@@ -80,7 +82,6 @@ namespace Backend_ZS.API.Repositories
             await dbContext.SaveChangesAsync();
 
             // Ensure navigation properties are loaded before returning
-            await dbContext.Entry(detail).Reference(d => d.BarOrder).LoadAsync();
             await dbContext.Entry(detail).Reference(d => d.BarProduct).LoadAsync();
 
             return detail;
@@ -98,7 +99,6 @@ namespace Backend_ZS.API.Repositories
             existing.Qty = detail.Qty;
 
             // Ensure navigation properties are loaded before returning
-            await dbContext.Entry(detail).Reference(d => d.BarOrder).LoadAsync();
             await dbContext.Entry(detail).Reference(d => d.BarProduct).LoadAsync();
 
             await dbContext.SaveChangesAsync();
@@ -114,7 +114,6 @@ namespace Backend_ZS.API.Repositories
                 return null;
 
             // Ensure navigation properties are loaded before returning
-            await dbContext.Entry(existing).Reference(d => d.BarOrder).LoadAsync();
             await dbContext.Entry(existing).Reference(d => d.BarProduct).LoadAsync();
 
             dbContext.Set<BarOrderDetail>().Remove(existing);

@@ -6,9 +6,6 @@ namespace Backend_ZS.API.Models.DTO
     {
         public decimal UnitPrice { get; set; }
         public int Qty { get; set; }
-
-        // Navigation Properties
-        public BarOrder BarOrder { get; set; }
-        public BarProduct BarProduct { get; set; }
+        public BarProductDto BarProduct { get; set; }
     }
 }

@@ -132,16 +132,22 @@ namespace Backend_ZS.API.Controllers
             // Map RequestDto to Domain Model
             var barOrderDetailDomainModel = mapper.Map<BarOrderDetail>(barOrderDetailCreateRequestDto);
 
+            // Add BarOrderId
+            barOrderDetailDomainModel.BarOrderId = id;
+
+
             // Create
             barOrderDetailDomainModel = await barOrderRepository.AddDetailAsync(barOrderDetailDomainModel);
 
             // Map Domain Model to Dto
+            var barOrderId = barOrderDetailDomainModel.BarOrderId;
             var barOrderDetailDto = mapper.Map<BarOrderDetailDto>(barOrderDetailDomainModel);
 
-            return CreatedAtAction(nameof(GetDetail), 
-                new { 
-                    id = barOrderDetailDto.BarOrder.Id, 
-                    barProductId =  barOrderDetailDto.BarProduct.Id
+            return CreatedAtAction(nameof(GetDetail),
+                new
+                {
+                    id = barOrderId,
+                    barProductId = barOrderDetailDto.BarProduct.Id
                 }, barOrderDetailDto);
         }
 
