@@ -35,6 +35,10 @@ namespace Backend_ZS.API.Mappings
             CreateMap<BarOrderDetail, BarOrderDetailDto>();
             CreateMap<BarOrderDetailCreateRequestDto, BarOrderDetail>();
             CreateMap<BarOrderDetailUpdateRequestDto, BarOrderDetail>();
+
+            // Key Mappings
+            CreateMap<Key, KeyDto>();
+            CreateMap<KeyRequestDto, Key>();
         }
     }
 }

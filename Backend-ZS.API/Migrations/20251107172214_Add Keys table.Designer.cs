@@ -4,6 +4,7 @@ using Backend_ZS.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend_ZS.API.Migrations
 {
     [DbContext(typeof(ZsDbContext))]
-    partial class ZsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251107172214_Add Keys table")]
+    partial class AddKeystable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -269,200 +272,6 @@ namespace Backend_ZS.API.Migrations
                     b.HasIndex("LastAssignedTo");
 
                     b.ToTable("Keys");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("45444a34-3c82-479c-8508-6a2bc2bc62a3"),
-                            Available = true,
-                            KeyCode = "1H"
-                        },
-                        new
-                        {
-                            Id = new Guid("cae24c39-7da2-44da-b7be-541f4d1249e1"),
-                            Available = true,
-                            KeyCode = "2H"
-                        },
-                        new
-                        {
-                            Id = new Guid("8b894d60-ec69-4ce4-8f4c-a356876e6663"),
-                            Available = true,
-                            KeyCode = "3H"
-                        },
-                        new
-                        {
-                            Id = new Guid("30c6f6a7-4f56-4eed-bb46-a8e842f1530e"),
-                            Available = true,
-                            KeyCode = "4H"
-                        },
-                        new
-                        {
-                            Id = new Guid("ee58c343-f78d-4f7c-8666-43f10e7cc3e6"),
-                            Available = true,
-                            KeyCode = "5H"
-                        },
-                        new
-                        {
-                            Id = new Guid("8f39c2ce-900a-4f7a-87f9-185883dcd676"),
-                            Available = true,
-                            KeyCode = "6H"
-                        },
-                        new
-                        {
-                            Id = new Guid("3d0b9380-2ecd-4b59-806b-d3a492b3fd23"),
-                            Available = true,
-                            KeyCode = "7H"
-                        },
-                        new
-                        {
-                            Id = new Guid("c42c5738-e341-4271-837f-fe14027a1629"),
-                            Available = true,
-                            KeyCode = "8H"
-                        },
-                        new
-                        {
-                            Id = new Guid("3f0b2c42-d013-43cc-b9a0-31624540de66"),
-                            Available = true,
-                            KeyCode = "9H"
-                        },
-                        new
-                        {
-                            Id = new Guid("18135631-9634-4394-8e02-edb76898fc33"),
-                            Available = true,
-                            KeyCode = "10H"
-                        },
-                        new
-                        {
-                            Id = new Guid("4f0bf30c-4196-4583-9467-a87ac7b6f7b5"),
-                            Available = true,
-                            KeyCode = "11H"
-                        },
-                        new
-                        {
-                            Id = new Guid("0f0c3028-0ab8-49fb-9ac5-b159180301a3"),
-                            Available = true,
-                            KeyCode = "12H"
-                        },
-                        new
-                        {
-                            Id = new Guid("7e67dc08-3dc4-48fe-914f-056bb32b5708"),
-                            Available = true,
-                            KeyCode = "13H"
-                        },
-                        new
-                        {
-                            Id = new Guid("e4f24e5b-91c5-48f6-92fc-9987ae7944fb"),
-                            Available = true,
-                            KeyCode = "14H"
-                        },
-                        new
-                        {
-                            Id = new Guid("6cfd2ac6-97e4-4655-97f4-f25b59ec02b2"),
-                            Available = true,
-                            KeyCode = "15H"
-                        },
-                        new
-                        {
-                            Id = new Guid("ab87b21d-fcc7-476f-97fa-f7122ffcc7b4"),
-                            Available = true,
-                            KeyCode = "16H"
-                        },
-                        new
-                        {
-                            Id = new Guid("9a2288a1-4efe-41ed-996b-8dbf42f276eb"),
-                            Available = true,
-                            KeyCode = "1M"
-                        },
-                        new
-                        {
-                            Id = new Guid("77325ac7-b5e7-4ef3-85d3-508f35f5a6a3"),
-                            Available = true,
-                            KeyCode = "2M"
-                        },
-                        new
-                        {
-                            Id = new Guid("872ce271-7889-43f5-9026-be8fba6f09e2"),
-                            Available = true,
-                            KeyCode = "3M"
-                        },
-                        new
-                        {
-                            Id = new Guid("e0178342-b601-49f5-aa8b-dc586d6c2bde"),
-                            Available = true,
-                            KeyCode = "4M"
-                        },
-                        new
-                        {
-                            Id = new Guid("413c9a8b-4357-4c46-b763-8858c71acee9"),
-                            Available = true,
-                            KeyCode = "5M"
-                        },
-                        new
-                        {
-                            Id = new Guid("b5cc7d05-0a2a-4e21-8093-a43b6567f764"),
-                            Available = true,
-                            KeyCode = "6M"
-                        },
-                        new
-                        {
-                            Id = new Guid("85c4a0eb-1bf1-4f4b-82be-1866cbd81452"),
-                            Available = true,
-                            KeyCode = "7M"
-                        },
-                        new
-                        {
-                            Id = new Guid("59fa5bbe-058e-491e-bc68-d8447c0ff854"),
-                            Available = true,
-                            KeyCode = "8M"
-                        },
-                        new
-                        {
-                            Id = new Guid("2338b9bd-ee2a-4af3-8c75-00b43598b75d"),
-                            Available = true,
-                            KeyCode = "9M"
-                        },
-                        new
-                        {
-                            Id = new Guid("e2ce6866-d740-4eea-8abc-ebd5ff126f71"),
-                            Available = true,
-                            KeyCode = "10M"
-                        },
-                        new
-                        {
-                            Id = new Guid("c21eb091-27f3-4238-ac95-f3597ac99a6b"),
-                            Available = true,
-                            KeyCode = "11M"
-                        },
-                        new
-                        {
-                            Id = new Guid("4d03a50b-5e50-4348-9b06-9a783413a01b"),
-                            Available = true,
-                            KeyCode = "12M"
-                        },
-                        new
-                        {
-                            Id = new Guid("0e6ec433-ce0b-41eb-b3c8-c3f643bb4c8e"),
-                            Available = true,
-                            KeyCode = "13M"
-                        },
-                        new
-                        {
-                            Id = new Guid("ba54bb28-0887-4583-bd32-26d65b56283f"),
-                            Available = true,
-                            KeyCode = "14M"
-                        },
-                        new
-                        {
-                            Id = new Guid("4d818dc0-7822-4758-98a7-7cf2959e3b00"),
-                            Available = true,
-                            KeyCode = "15M"
-                        },
-                        new
-                        {
-                            Id = new Guid("ddf2eaa4-251e-428e-b1cc-6f65b40af74a"),
-                            Available = true,
-                            KeyCode = "16M"
-                        });
                 });
 
             modelBuilder.Entity("Backend_ZS.API.Models.Domain.Payment", b =>
