@@ -16,6 +16,9 @@ namespace Backend_ZS.API.Mappings
             CreateMap<BarProduct, BarProductDto>();
             CreateMap<BarProductRequestDto, BarProduct>();
 
+            //TransactionItem Mappings
+            CreateMap<TransactionItem, TransactionItemDto>();
+
             // Transaction Mappings
             CreateMap<Transaction, TransactionDto>();
             CreateMap<TransactionRequestDto, Transaction>();

@@ -21,7 +21,6 @@ namespace Backend_ZS.API.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // TransactionItem TPH -> physical table "TransactionItem"
             modelBuilder.Entity<TransactionItem>(b =>
             {
                 b.ToTable("TransactionItems");
@@ -30,13 +29,12 @@ namespace Backend_ZS.API.Data
                  .HasValue<BarOrder>("BarOrder");
             });
 
-            // Transaction table explicit mapping + FK to TransactionItem
             modelBuilder.Entity<Transaction>(b =>
             {
-                b.ToTable("Transactions"); // optional but explicit
+                b.ToTable("Transactions");
                 b.HasKey(t => t.Id);
                 b.HasOne(t => t.TransactionItem)
-                 .WithMany() // no back-navigation from TransactionItem in your model
+                 .WithMany()
                  .HasForeignKey(t => t.TransactionItemId)
                  .OnDelete(DeleteBehavior.Restrict);
             });

@@ -6,11 +6,11 @@ namespace Backend_ZS.API.Models.DTO
     {
         public Guid Id { get; set; }
         public DateTime CreatedAt { get; set; }
-        public Guid TransactionItemId { get; set; }
-        public Guid PaymentId { get; set; }
 
         // Navigation Properties
-        public TransactionItem TransactionItem { get; set; }
-        public Payment Payment { get; set; }
+        public ClientDto Client { get; set; }
+        public TransactionItemDto TransactionItem { get; set; }
+        public PaymentDto Payment { get; set; }
+        
     }
 }

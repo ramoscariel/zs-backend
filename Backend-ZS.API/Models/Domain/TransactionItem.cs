@@ -4,5 +4,6 @@
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public double Total { get; set; }
+        public string TransactionType { get; set; }
     }
 }

@@ -4,9 +4,8 @@ namespace Backend_ZS.API.Models.DTO
 {
     public class TransactionRequestDto
     {
-        [Required]
+        public Guid ClientId { get; set; }
         public Guid TransactionItemId { get; set; }
-        [Required]
-        public Guid PaymentId { get; set; }
+        public Guid? PaymentId { get; set; }
     }
 }
