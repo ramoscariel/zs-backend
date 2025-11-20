@@ -37,6 +37,7 @@ builder.Services.AddScoped<IPaymentRepository, SqlPaymentRepository>();
 builder.Services.AddScoped<ITransactionRepository, SqlTransactionRepository>();
 builder.Services.AddScoped<IBarOrderRepository, SqlBarOrderRepository>();
 builder.Services.AddScoped<IKeyRepository, SqlKeyRepository>();
+builder.Services.AddScoped<IAccessCardRepository, SqlAccessCardRepository>();
 
 var app = builder.Build();
 

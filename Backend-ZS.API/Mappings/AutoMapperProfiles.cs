@@ -39,6 +39,10 @@ namespace Backend_ZS.API.Mappings
             // Key Mappings
             CreateMap<Key, KeyDto>();
             CreateMap<KeyRequestDto, Key>();
+
+            // AccessCard Mappings
+            CreateMap<AccessCard, AccessCardDto>();
+            CreateMap<AccessCardRequestDto, AccessCard>();
         }
     }
 }
