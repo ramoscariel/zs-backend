@@ -23,14 +23,14 @@ namespace Backend_ZS.API.Repositories
         public async Task<Parking> AddAsync(Parking parking)
         {
             // Calculate Total: if ExitTime is null -> 0, otherwise $1 per hour (round up to the next full hour)
-            if (parking.ExitTime == null)
+            if (parking.ParkingExitTime == null)
             {
                 parking.Total = 0;
             }
             else
             {
-                var entry = parking.EntryTime;
-                var exit = parking.ExitTime.Value;
+                var entry = parking.ParkingEntryTime;
+                var exit = parking.ParkingExitTime.Value;
 
                 var duration = exit.ToTimeSpan() - entry.ToTimeSpan();
                 if (duration < TimeSpan.Zero)
@@ -57,19 +57,19 @@ namespace Backend_ZS.API.Repositories
             }
 
             // Update Properties
-            existingParking.Date = parking.Date;
-            existingParking.EntryTime = parking.EntryTime;
-            existingParking.ExitTime = parking.ExitTime;
+            existingParking.ParkingDate = parking.ParkingDate;
+            existingParking.ParkingEntryTime = parking.ParkingEntryTime;
+            existingParking.ParkingExitTime = parking.ParkingExitTime;
 
             // Recalculate Total for the existingParking entity
-            if (existingParking.ExitTime == null)
+            if (existingParking.ParkingExitTime == null)
             {
                 existingParking.Total = 0;
             }
             else
             {
-                var entry = existingParking.EntryTime;
-                var exit = existingParking.ExitTime.Value;
+                var entry = existingParking.ParkingEntryTime;
+                var exit = existingParking.ParkingExitTime.Value;
 
                 var duration = exit.ToTimeSpan() - entry.ToTimeSpan();
                 if (duration < TimeSpan.Zero)

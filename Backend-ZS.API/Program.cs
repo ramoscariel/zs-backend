@@ -40,6 +40,7 @@ builder.Services.AddScoped<IBarOrderRepository, SqlBarOrderRepository>();
 builder.Services.AddScoped<IKeyRepository, SqlKeyRepository>();
 builder.Services.AddScoped<IAccessCardRepository, SqlAccessCardRepository>();
 builder.Services.AddScoped<IParkingRepository, SqlParkingRepository>();
+builder.Services.AddScoped<IEntranceTransactionRepository, SqlEntranceTransactionRepository>();
 
 // Service: orchestrates stock validation + detail changes + order total recalculation
 builder.Services.AddScoped<IBarOrderService, SqlBarOrderService>();

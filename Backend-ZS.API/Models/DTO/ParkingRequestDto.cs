@@ -2,8 +2,8 @@
 {
     public class ParkingRequestDto
     {
-        public DateOnly Date { get; set; }
-        public TimeOnly EntryTime { get; set; }
-        public TimeOnly? ExitTime { get; set; }
+        public DateOnly ParkingDate { get; set; }
+        public TimeOnly ParkingEntryTime { get; set; }
+        public TimeOnly? ParkingExitTime { get; set; }
     }
 }

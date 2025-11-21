@@ -46,6 +46,10 @@ namespace Backend_ZS.API.Mappings
             // Parking Mappings
             CreateMap<Parking, ParkingDto>();
             CreateMap<ParkingRequestDto, Parking>();
+
+            // EntranceTransaction Mappings
+            CreateMap<EntranceTransaction, EntranceTransactionDto>();
+            CreateMap<EntranceTransactionRequestDto, EntranceTransaction>();
         }
     }
 }
