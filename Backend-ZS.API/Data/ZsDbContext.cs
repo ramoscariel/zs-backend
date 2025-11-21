@@ -18,6 +18,7 @@ namespace Backend_ZS.API.Data
         public DbSet<BarProduct> BarProducts { get; set; }
         public DbSet<AccessCard> AccessCards { get; set; }
         public DbSet<Key> Keys { get; set; }
+        public DbSet<Parking> Parkings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,7 +30,8 @@ namespace Backend_ZS.API.Data
                 b.HasKey(t => t.Id);
                 b.HasDiscriminator<string>("TransactionType")
                  .HasValue<BarOrder>("BarOrder")
-                 .HasValue<AccessCard>("AccessCard");
+                 .HasValue<AccessCard>("AccessCard")
+                 .HasValue<Parking>("Parking");
             });
 
             modelBuilder.Entity<Transaction>(b =>

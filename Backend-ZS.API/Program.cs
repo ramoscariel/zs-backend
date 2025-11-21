@@ -1,6 +1,7 @@
 using Backend_ZS.API.Data;
 using Backend_ZS.API.Mappings;
 using Backend_ZS.API.Repositories;
+using Backend_ZS.API.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +39,10 @@ builder.Services.AddScoped<ITransactionRepository, SqlTransactionRepository>();
 builder.Services.AddScoped<IBarOrderRepository, SqlBarOrderRepository>();
 builder.Services.AddScoped<IKeyRepository, SqlKeyRepository>();
 builder.Services.AddScoped<IAccessCardRepository, SqlAccessCardRepository>();
+builder.Services.AddScoped<IParkingRepository, SqlParkingRepository>();
+
+// Service: orchestrates stock validation + detail changes + order total recalculation
+builder.Services.AddScoped<IBarOrderService, SqlBarOrderService>();
 
 var app = builder.Build();
 

@@ -26,28 +26,18 @@ namespace Backend_ZS.API.Repositories
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<BarOrder> AddAsync(BarOrder barOrder)
+        public async Task<BarOrder> AddAsync()
         {
+            // Create a new BarOrder with default values
+            var barOrder = new BarOrder
+            {
+                Total = 0,
+                Details = new List<BarOrderDetail>()
+            };
+
             await dbContext.BarOrders.AddAsync(barOrder);
             await dbContext.SaveChangesAsync();
             return barOrder;
-        }
-        public async Task<BarOrder?> UpdateAsync(Guid id, BarOrder barOrder)
-        {
-            var existingBarOrder = await dbContext.BarOrders
-                .FirstOrDefaultAsync(x => x.Id == id);
-
-            if (existingBarOrder == null)
-            {
-                return null;
-            }
-
-            // Update Properties
-
-            existingBarOrder.Total = barOrder.Total;
-
-            await dbContext.SaveChangesAsync();
-            return existingBarOrder;
         }
 
         public async Task<BarOrder?> DeleteAsync(Guid id)
@@ -84,6 +74,9 @@ namespace Backend_ZS.API.Repositories
             // Ensure navigation properties are loaded before returning
             await dbContext.Entry(detail).Reference(d => d.BarProduct).LoadAsync();
 
+            // Update the parent order total
+            await UpdateOrderTotalAsync(detail.BarOrderId);
+
             return detail;
         }
 
@@ -98,10 +91,14 @@ namespace Backend_ZS.API.Repositories
             existing.UnitPrice = detail.UnitPrice;
             existing.Qty = detail.Qty;
 
-            // Ensure navigation properties are loaded before returning
-            await dbContext.Entry(detail).Reference(d => d.BarProduct).LoadAsync();
-
             await dbContext.SaveChangesAsync();
+
+            // Ensure navigation properties are loaded on the tracked entity before returning
+            await dbContext.Entry(existing).Reference(d => d.BarProduct).LoadAsync();
+
+            // Update the parent order total
+            await UpdateOrderTotalAsync(existing.BarOrderId);
+
             return existing;
         }
 
@@ -119,7 +116,27 @@ namespace Backend_ZS.API.Repositories
             dbContext.Set<BarOrderDetail>().Remove(existing);
             await dbContext.SaveChangesAsync();
 
+            // Update the parent order total
+            await UpdateOrderTotalAsync(orderId);
+
             return existing;
+        }
+
+        // Helper: recalculates and persists the total for a BarOrder based on its details
+        private async Task UpdateOrderTotalAsync(Guid orderId)
+        {
+            // Calculate sum(unitPrice * qty) on DB side
+            var total = await dbContext.BarOrderDetails
+                .Where(d => d.BarOrderId == orderId)
+                .Select(d => d.UnitPrice * d.Qty)
+                .SumAsync();
+
+            var order = await dbContext.BarOrders.FirstOrDefaultAsync(o => o.Id == orderId);
+            if (order != null)
+            {
+                order.Total = total;
+                await dbContext.SaveChangesAsync();
+            }
         }
     }
 }

@@ -6,8 +6,10 @@ namespace Backend_ZS.API.Repositories
     {
         Task<List<BarOrder>> GetAllAsync();
         Task<BarOrder?> GetByIdAsync(Guid id);
-        Task<BarOrder> AddAsync(BarOrder barOrder);
-        Task<BarOrder?> UpdateAsync(Guid id, BarOrder barOrder);
+
+        // Create a new BarOrder (no input model required)
+        Task<BarOrder> AddAsync();
+
         Task<BarOrder?> DeleteAsync(Guid id);
 
         // BarOrderDetail Operations

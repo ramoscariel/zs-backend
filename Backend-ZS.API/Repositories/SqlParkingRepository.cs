@@ -1,0 +1,102 @@
+﻿using System;
+using Backend_ZS.API.Data;
+using Backend_ZS.API.Models.Domain;
+using Microsoft.EntityFrameworkCore;
+
+namespace Backend_ZS.API.Repositories
+{
+    public class SqlParkingRepository : IParkingRepository
+    {
+        private readonly ZsDbContext dbContext;
+        public SqlParkingRepository(ZsDbContext dbContext)
+        {
+            this.dbContext = dbContext;
+        }
+        public async Task<List<Parking>> GetAllAsync()
+        {
+            return await dbContext.Parkings.ToListAsync();
+        }
+        public async Task<Parking?> GetByIdAsync(Guid id)
+        {
+            return await dbContext.Parkings.FindAsync(id);
+        }
+        public async Task<Parking> AddAsync(Parking parking)
+        {
+            // Calculate Total: if ExitTime is null -> 0, otherwise $1 per hour (round up to the next full hour)
+            if (parking.ExitTime == null)
+            {
+                parking.Total = 0;
+            }
+            else
+            {
+                var entry = parking.EntryTime;
+                var exit = parking.ExitTime.Value;
+
+                var duration = exit.ToTimeSpan() - entry.ToTimeSpan();
+                if (duration < TimeSpan.Zero)
+                {
+                    // handle spanning midnight
+                    duration += TimeSpan.FromDays(1);
+                }
+
+                var hours = Math.Ceiling(duration.TotalHours);
+                parking.Total = hours * 1.0;
+            }
+
+            await dbContext.Parkings.AddAsync(parking);
+            await dbContext.SaveChangesAsync();
+            return parking;
+        }
+
+        public async Task<Parking?> UpdateAsync(Guid id, Parking parking)
+        {
+            var existingParking = await dbContext.Parkings.FindAsync(id);
+            if (existingParking == null)
+            {
+                return null;
+            }
+
+            // Update Properties
+            existingParking.Date = parking.Date;
+            existingParking.EntryTime = parking.EntryTime;
+            existingParking.ExitTime = parking.ExitTime;
+
+            // Recalculate Total for the existingParking entity
+            if (existingParking.ExitTime == null)
+            {
+                existingParking.Total = 0;
+            }
+            else
+            {
+                var entry = existingParking.EntryTime;
+                var exit = existingParking.ExitTime.Value;
+
+                var duration = exit.ToTimeSpan() - entry.ToTimeSpan();
+                if (duration < TimeSpan.Zero)
+                {
+                    // handle spanning midnight
+                    duration += TimeSpan.FromDays(1);
+                }
+
+                var hours = Math.Ceiling(duration.TotalHours);
+                existingParking.Total = hours * 1.0;
+            }
+
+            await dbContext.SaveChangesAsync();
+            return existingParking;
+        }
+        public async Task<Parking?> DeleteAsync(Guid id)
+        {
+            var existingParking = await dbContext.Parkings.FindAsync(id);
+            if (existingParking == null)
+            {
+                return null;
+            }
+
+            dbContext.Parkings.Remove(existingParking);
+            await dbContext.SaveChangesAsync();
+
+            return existingParking;
+        }
+    }
+}

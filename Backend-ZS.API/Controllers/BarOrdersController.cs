@@ -2,9 +2,9 @@
 using Backend_ZS.API.Models.Domain;
 using Backend_ZS.API.Models.DTO;
 using Backend_ZS.API.Repositories;
+using Backend_ZS.API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Backend_ZS.API.Controllers
 {
@@ -13,10 +13,12 @@ namespace Backend_ZS.API.Controllers
     public class BarOrdersController : ControllerBase
     {
         private readonly IBarOrderRepository barOrderRepository;
+        private readonly IBarOrderService barOrderService;
         private readonly IMapper mapper;
-        public BarOrdersController(IBarOrderRepository barOrderRepository, IMapper mapper)
+        public BarOrdersController(IBarOrderRepository barOrderRepository, IBarOrderService barOrderService, IMapper mapper)
         {
             this.barOrderRepository = barOrderRepository;
+            this.barOrderService = barOrderService;
             this.mapper = mapper;
         }
 
@@ -50,38 +52,15 @@ namespace Backend_ZS.API.Controllers
             return Ok(barOrderDto);
         }
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] BarOrderRequestDto barOrderRequestDto)
+        public async Task<IActionResult> Create()
         {
-            // Map RequestDto to Domain Model
-            var barOrderDomainModel = mapper.Map<BarOrder>(barOrderRequestDto);
-
-            // Create
-            barOrderDomainModel = await barOrderRepository.AddAsync(barOrderDomainModel);
+            // Create a new BarOrder (no request body required)
+            var barOrderDomainModel = await barOrderRepository.AddAsync();
 
             // Map Domain Model to Dto
             var barOrderDto = mapper.Map<BarOrderDto>(barOrderDomainModel);
 
             return CreatedAtAction(nameof(GetById), new { id = barOrderDto.Id }, barOrderDto);
-        }
-
-        [HttpPut]
-        [Route("{id:guid}")]
-        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] BarOrderRequestDto barOrderRequestDto)
-        {
-            // Map RequestDto to Domain Model
-            var barOrderDomainModel = mapper.Map<BarOrder>(barOrderRequestDto);
-
-            barOrderDomainModel = await barOrderRepository.UpdateAsync(id, barOrderDomainModel);
-
-            if (barOrderDomainModel == null)
-            {
-                return NotFound();
-            }
-
-            // Map Domain Model to Dto
-            var barOrderDto = mapper.Map<BarOrderDto>(barOrderDomainModel);
-
-            return Ok(barOrderDto);
         }
 
         [HttpDelete]
@@ -135,9 +114,8 @@ namespace Backend_ZS.API.Controllers
             // Add BarOrderId
             barOrderDetailDomainModel.BarOrderId = id;
 
-
-            // Create
-            barOrderDetailDomainModel = await barOrderRepository.AddDetailAsync(barOrderDetailDomainModel);
+            // Use service (handles stock validation, product qty update, total recalculation)
+            barOrderDetailDomainModel = await barOrderService.AddDetailAsync(barOrderDetailDomainModel);
 
             // Map Domain Model to Dto
             var barOrderId = barOrderDetailDomainModel.BarOrderId;
@@ -158,7 +136,7 @@ namespace Backend_ZS.API.Controllers
             // Map RequestDto to Domain Model
             var barOrderDetailDomainModel = mapper.Map<BarOrderDetail>(barOrderDetailUpdateRequestDto);
 
-            barOrderDetailDomainModel = await barOrderRepository.UpdateDetailAsync(barOrderDetailDomainModel);
+            barOrderDetailDomainModel = await barOrderService.UpdateDetailAsync(barOrderDetailDomainModel);
 
             if (barOrderDetailDomainModel == null)
             {
@@ -175,8 +153,8 @@ namespace Backend_ZS.API.Controllers
         [Route("{id:guid}/details/{barProductId:guid}")]
         public async Task<IActionResult> DeleteDetail([FromRoute] Guid id, [FromRoute] Guid barProductId)
         {
-            // Delete Resource
-            var deletedBarOrderDetail = await barOrderRepository.DeleteDetailAsync(id, barProductId);
+            // Delete Resource (service will restore product qty and update order total)
+            var deletedBarOrderDetail = await barOrderService.DeleteDetailAsync(id, barProductId);
 
             if (deletedBarOrderDetail == null)
             {

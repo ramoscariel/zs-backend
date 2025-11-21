@@ -29,7 +29,6 @@ namespace Backend_ZS.API.Mappings
 
             // BarOrder Mappings
             CreateMap<BarOrder, BarOrderDto>();
-            CreateMap<BarOrderRequestDto, BarOrder>();
 
             // BarOrderDetail Mappings
             CreateMap<BarOrderDetail, BarOrderDetailDto>();
@@ -43,6 +42,10 @@ namespace Backend_ZS.API.Mappings
             // AccessCard Mappings
             CreateMap<AccessCard, AccessCardDto>();
             CreateMap<AccessCardRequestDto, AccessCard>();
+
+            // Parking Mappings
+            CreateMap<Parking, ParkingDto>();
+            CreateMap<ParkingRequestDto, Parking>();
         }
     }
 }

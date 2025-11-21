@@ -6,7 +6,7 @@ namespace Backend_ZS.API.Models.Domain
     {
         public Guid BarOrderId { get; set; }
         public Guid BarProductId { get; set; }
-        public decimal UnitPrice { get; set; }
+        public double UnitPrice { get; set; }
         public int Qty { get; set; }
 
         // Navigation Properties
