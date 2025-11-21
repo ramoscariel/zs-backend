@@ -4,6 +4,7 @@ using Backend_ZS.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend_ZS.API.Migrations
 {
     [DbContext(typeof(ZsDbContext))]
-    partial class ZsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251121174248_Add EntranceAccessCard")]
+    partial class AddEntranceAccessCard
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -251,9 +254,6 @@ namespace Backend_ZS.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AccessCardId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateOnly>("EntranceDate")
                         .HasColumnType("date");
 
@@ -264,8 +264,6 @@ namespace Backend_ZS.API.Migrations
                         .HasColumnType("time");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AccessCardId");
 
                     b.ToTable("EntranceAccessCards");
                 });
@@ -637,17 +635,6 @@ namespace Backend_ZS.API.Migrations
                     b.Navigation("BarOrder");
 
                     b.Navigation("BarProduct");
-                });
-
-            modelBuilder.Entity("Backend_ZS.API.Models.Domain.EntranceAccessCard", b =>
-                {
-                    b.HasOne("Backend_ZS.API.Models.Domain.AccessCard", "AccessCard")
-                        .WithMany()
-                        .HasForeignKey("AccessCardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AccessCard");
                 });
 
             modelBuilder.Entity("Backend_ZS.API.Models.Domain.Key", b =>

@@ -50,6 +50,10 @@ namespace Backend_ZS.API.Mappings
             // EntranceTransaction Mappings
             CreateMap<EntranceTransaction, EntranceTransactionDto>();
             CreateMap<EntranceTransactionRequestDto, EntranceTransaction>();
+
+            // EntrnaceAccessCard Mapppings
+            CreateMap<EntranceAccessCard, EntranceAccessCardDto>();
+            CreateMap<EntranceAccessCardRequestDto, EntranceAccessCard>();
         }
     }
 }

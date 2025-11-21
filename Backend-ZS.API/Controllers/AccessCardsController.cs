@@ -102,5 +102,6 @@ namespace Backend_ZS.API.Controllers
             // return DTO
             return Ok(accessCardDto);
         }
+
     }
 }

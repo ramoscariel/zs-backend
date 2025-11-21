@@ -20,6 +20,7 @@ namespace Backend_ZS.API.Data
         public DbSet<Key> Keys { get; set; }
         public DbSet<Parking> Parkings { get; set; }
         public DbSet<EntranceTransaction> EntranceTransactions { get; set; }
+        public DbSet<EntranceAccessCard> EntranceAccessCards { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
