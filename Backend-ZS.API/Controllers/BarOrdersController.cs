@@ -166,10 +166,10 @@ namespace Backend_ZS.API.Controllers
             }
 
             // Map Domain Model to DTO
-            var barOrderDto = mapper.Map<BarOrderDto>(deletedBarOrderDetail);
+            var barOrderDetailDto = mapper.Map<BarOrderDetailDto>(deletedBarOrderDetail);
 
             // return DTO to barOrder
-            return Ok(barOrderDto);
+            return Ok(barOrderDetailDto);
 
         }
     }
