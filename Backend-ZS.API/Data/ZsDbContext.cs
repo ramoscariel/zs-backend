@@ -45,6 +45,8 @@ namespace Backend_ZS.API.Data
                  .WithMany()
                  .HasForeignKey(t => t.TransactionItemId)
                  .OnDelete(DeleteBehavior.Restrict);
+
+                b.HasIndex(t => t.TransactionItemId).IsUnique();
             });
 
             modelBuilder.Entity<BarOrderDetail>()

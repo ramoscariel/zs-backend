@@ -4,6 +4,7 @@ using Backend_ZS.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend_ZS.API.Migrations
 {
     [DbContext(typeof(ZsDbContext))]
-    partial class ZsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251123232540_make transaction to transactionitem 1 to 1")]
+    partial class maketransactiontotransactionitem1to1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
