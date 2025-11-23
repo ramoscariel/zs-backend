@@ -22,7 +22,11 @@ namespace Backend_ZS.API.Repositories
 
         public async Task<Transaction?> GetByIdAsync(Guid id)
         {
-            return await dbContext.Transactions.FindAsync(id);
+            return await dbContext.Transactions
+                .Include(t=> t.Client)
+                .Include(t=> t.TransactionItem)
+                .Include(t=> t.Payment)
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<Transaction> AddAsync(Transaction transaction)
