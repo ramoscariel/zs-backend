@@ -32,6 +32,20 @@ namespace Backend_ZS.API.Controllers
             return Ok(keysDto);
         }
 
+        [HttpGet]
+        [Route("{id:guid}")]
+        public async Task<IActionResult> GetById([FromRoute] Guid id)
+        {
+            var key = await keyRepository.GetByIdAsync(id);
+            if (key == null)
+            {
+                return NotFound();
+            }
+
+            var keyDto = mapper.Map<KeyDto>(key);
+            return Ok(keyDto);
+        }
+
         [HttpPut]
         [Route("{id:guid}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] KeyRequestDto keyRequestDto)

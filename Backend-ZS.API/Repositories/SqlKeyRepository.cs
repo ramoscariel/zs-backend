@@ -19,6 +19,13 @@ namespace Backend_ZS.API.Repositories
                 .ToListAsync();
         }
 
+        public async Task<Key?> GetByIdAsync(Guid id)
+        {
+            return await dbContext.Keys
+                .Include(k => k.LastAssignedClient)
+                .FirstOrDefaultAsync(k => k.Id == id);
+        }
+
         public async Task<Key?> UpdateAsync(Guid id, Key key)
         {
             var existingKey = await dbContext.Keys.FindAsync(id);
