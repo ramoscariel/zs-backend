@@ -22,7 +22,8 @@ namespace Backend_ZS.API.Repositories
         public async Task<BarOrder?> GetByIdAsync(Guid id)
         {
             return await dbContext.BarOrders
-                .Include("Details")
+                .Include(o => o.Details)
+                    .ThenInclude(d => d.BarProduct)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 

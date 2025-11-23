@@ -131,10 +131,14 @@ namespace Backend_ZS.API.Controllers
 
         [HttpPut]
         [Route("{id:guid}/details/{barProductId:guid}")]
-        public async Task<IActionResult> UpdateDetail([FromBody] BarOrderDetailUpdateRequestDto barOrderDetailUpdateRequestDto)
+        public async Task<IActionResult> UpdateDetail([FromRoute] Guid id, [FromRoute] Guid barProductId, [FromBody] BarOrderDetailUpdateRequestDto barOrderDetailUpdateRequestDto)
         {
             // Map RequestDto to Domain Model
             var barOrderDetailDomainModel = mapper.Map<BarOrderDetail>(barOrderDetailUpdateRequestDto);
+
+            // Ensure the route values are applied so the service can find the existing detail
+            barOrderDetailDomainModel.BarOrderId = id;
+            barOrderDetailDomainModel.BarProductId = barProductId;
 
             barOrderDetailDomainModel = await barOrderService.UpdateDetailAsync(barOrderDetailDomainModel);
 
