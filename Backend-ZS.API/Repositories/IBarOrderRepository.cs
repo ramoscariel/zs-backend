@@ -1,4 +1,5 @@
 ﻿using Backend_ZS.API.Models.Domain;
+using Backend_ZS.API.Models.DTO;
 
 namespace Backend_ZS.API.Repositories
 {
@@ -7,8 +8,8 @@ namespace Backend_ZS.API.Repositories
         Task<List<BarOrder>> GetAllAsync();
         Task<BarOrder?> GetByIdAsync(Guid id);
 
-        // Create a new BarOrder (no input model required)
-        Task<BarOrder> AddAsync();
+        // Create a new BarOrder
+        Task<BarOrder> AddAsync(BarOrder barOrder);
 
         Task<BarOrder?> DeleteAsync(Guid id);
 

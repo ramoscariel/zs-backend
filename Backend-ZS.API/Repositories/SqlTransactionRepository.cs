@@ -15,7 +15,7 @@ namespace Backend_ZS.API.Repositories
         {
             return await dbContext.Transactions
                 .Include(t => t.Client)
-                .Include(t => t.TransactionItem)
+                .Include(t => t.TransactionItems)
                 .Include(t => t.Payment)
                 .ToListAsync();
         }
@@ -24,7 +24,7 @@ namespace Backend_ZS.API.Repositories
         {
             return await dbContext.Transactions
                 .Include(t=> t.Client)
-                .Include(t=> t.TransactionItem)
+                .Include(t=> t.TransactionItems)
                 .Include(t=> t.Payment)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
@@ -37,15 +37,16 @@ namespace Backend_ZS.API.Repositories
         }
         public async Task<Transaction?> UpdateAsync(Guid id, Transaction transaction)
         {
-            var existingTransaction = await dbContext.Transactions.FindAsync(id);
+            var existingTransaction = await dbContext.Transactions
+               .Include(t => t.TransactionItems)
+               .FirstOrDefaultAsync(x => x.Id == id);
             if (existingTransaction == null)
             {
                 return null;
             }
 
             // Update Properties
-            existingTransaction.CreatedAt = transaction.CreatedAt;
-            existingTransaction.TransactionItemId = transaction.TransactionItemId;
+            existingTransaction.ClientId = transaction.ClientId;
             existingTransaction.PaymentId = transaction.PaymentId;
 
             await dbContext.SaveChangesAsync();

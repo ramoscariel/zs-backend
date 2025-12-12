@@ -26,6 +26,7 @@ namespace Backend_ZS.API.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // TransactionItem -> Transaction (many TransactionItems belong to one Transaction)
             modelBuilder.Entity<TransactionItem>(b =>
             {
                 b.ToTable("TransactionItems");
@@ -34,19 +35,27 @@ namespace Backend_ZS.API.Data
                  .HasValue<BarOrder>("BarOrder")
                  .HasValue<AccessCard>("AccessCard")
                  .HasValue<Parking>("Parking")
-                 .HasValue<EntranceTransaction>("EntrancsTransaction");
+                 .HasValue<EntranceTransaction>("EntranceTransaction");
             });
+
 
             modelBuilder.Entity<Transaction>(b =>
             {
                 b.ToTable("Transactions");
                 b.HasKey(t => t.Id);
-                b.HasOne(t => t.TransactionItem)
-                 .WithMany()
-                 .HasForeignKey(t => t.TransactionItemId)
+
+                // Client (1) <---> (0..*) Transaction
+                b.HasOne(t => t.Client)
+                 .WithMany(c => c.Transactions)
+                 .HasForeignKey(t => t.ClientId)
                  .OnDelete(DeleteBehavior.Restrict);
 
-                b.HasIndex(t => t.TransactionItemId).IsUnique();
+                // Payment (1:1) Payment covers Transaction.
+                // Transaction holds the FK (PaymentId). Configure as one-to-one.
+                b.HasOne(t => t.Payment)
+                 .WithOne()
+                 .HasForeignKey<Transaction>(t => t.PaymentId)
+                 .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<BarOrderDetail>()

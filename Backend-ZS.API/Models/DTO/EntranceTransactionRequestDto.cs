@@ -1,6 +1,6 @@
 ﻿namespace Backend_ZS.API.Models.DTO
 {
-    public class EntranceTransactionRequestDto
+    public class EntranceTransactionRequestDto : TransactionItemRequestDto
     {
         public DateOnly EntranceDate { get; set; }
         public TimeOnly EntranceEntryTime { get; set; }

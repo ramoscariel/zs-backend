@@ -1,9 +1,7 @@
 ﻿namespace Backend_ZS.API.Models.DTO
 {
-    public class EntranceTransactionDto
+    public class EntranceTransactionDto : TransactionItemDto
     {
-        public Guid Id { get; set; }
-        public double Total { get; set; }
         public DateOnly EntranceDate { get; set; }
         public TimeOnly EntranceEntryTime { get; set; }
         public TimeOnly? EntranceExitTime { get; set; }

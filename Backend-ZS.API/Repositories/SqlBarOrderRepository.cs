@@ -1,5 +1,6 @@
 ﻿using Backend_ZS.API.Data;
 using Backend_ZS.API.Models.Domain;
+using Backend_ZS.API.Models.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend_ZS.API.Repositories
@@ -27,15 +28,8 @@ namespace Backend_ZS.API.Repositories
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<BarOrder> AddAsync()
+        public async Task<BarOrder> AddAsync(BarOrder barOrder)
         {
-            // Create a new BarOrder with default values
-            var barOrder = new BarOrder
-            {
-                Total = 0,
-                Details = new List<BarOrderDetail>()
-            };
-
             await dbContext.BarOrders.AddAsync(barOrder);
             await dbContext.SaveChangesAsync();
             return barOrder;

@@ -2,11 +2,8 @@
 
 namespace Backend_ZS.API.Models.DTO
 {
-    public class BarOrderDto
+    public class BarOrderDto : TransactionItemDto
     {
-        public Guid Id { get; set; }
-        public double Total { get; set; }
-
         // Navigation Property
         public ICollection<BarOrderDetailDto> Details { get; set; }
     }

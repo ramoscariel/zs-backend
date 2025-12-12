@@ -52,10 +52,13 @@ namespace Backend_ZS.API.Controllers
             return Ok(barOrderDto);
         }
         [HttpPost]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create([FromBody] BarOrderRequestDto barOrderRequestDto)
         {
-            // Create a new BarOrder (no request body required)
-            var barOrderDomainModel = await barOrderRepository.AddAsync();
+            // Map RequestDto to Domain Model
+            var barOrderDomainModel = mapper.Map<BarOrder>(barOrderRequestDto);
+
+            // Create a new BarOrder
+            barOrderDomainModel = await barOrderRepository.AddAsync(barOrderDomainModel);
 
             // Map Domain Model to Dto
             var barOrderDto = mapper.Map<BarOrderDto>(barOrderDomainModel);

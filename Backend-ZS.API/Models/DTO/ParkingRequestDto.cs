@@ -1,6 +1,6 @@
 ﻿namespace Backend_ZS.API.Models.DTO
 {
-    public class ParkingRequestDto
+    public class ParkingRequestDto : TransactionItemRequestDto
     {
         public DateOnly ParkingDate { get; set; }
         public TimeOnly ParkingEntryTime { get; set; }
