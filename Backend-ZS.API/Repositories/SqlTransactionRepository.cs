@@ -16,7 +16,7 @@ namespace Backend_ZS.API.Repositories
             return await dbContext.Transactions
                 .Include(t => t.Client)
                 .Include(t => t.TransactionItems)
-                .Include(t => t.Payment)
+                .Include(t => t.Payments)
                 .ToListAsync();
         }
 
@@ -25,7 +25,7 @@ namespace Backend_ZS.API.Repositories
             return await dbContext.Transactions
                 .Include(t=> t.Client)
                 .Include(t=> t.TransactionItems)
-                .Include(t=> t.Payment)
+                .Include(t=> t.Payments)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
@@ -47,7 +47,6 @@ namespace Backend_ZS.API.Repositories
 
             // Update Properties
             existingTransaction.ClientId = transaction.ClientId;
-            existingTransaction.PaymentId = transaction.PaymentId;
 
             await dbContext.SaveChangesAsync();
             return existingTransaction;

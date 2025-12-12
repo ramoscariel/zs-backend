@@ -50,11 +50,11 @@ namespace Backend_ZS.API.Data
                  .HasForeignKey(t => t.ClientId)
                  .OnDelete(DeleteBehavior.Restrict);
 
-                // Payment (1:1) Payment covers Transaction.
-                // Transaction holds the FK (PaymentId). Configure as one-to-one.
-                b.HasOne(t => t.Payment)
-                 .WithOne()
-                 .HasForeignKey<Transaction>(t => t.PaymentId)
+                // Payments (1) <---> (0..*) Payment
+                // A Transaction can have many Payments. Payment holds the FK (TransactionId).
+                b.HasMany(t => t.Payments)
+                 .WithOne(p => p.Transaction)
+                 .HasForeignKey(p => p.TransactionId)
                  .OnDelete(DeleteBehavior.Restrict);
             });
 
@@ -71,6 +71,11 @@ namespace Backend_ZS.API.Data
                 .HasOne(d => d.BarProduct)
                 .WithMany()
                 .HasForeignKey(d => d.BarProductId);
+
+            // Guarda tipo de pago en columna como string
+            modelBuilder.Entity<Payment>()
+                .Property(p => p.Type)
+                .HasConversion<string>();
 
             // Data Seeding
 
