@@ -6,9 +6,8 @@
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public double Total { get; set; }
         public string TransactionType { get; set; }
-        public Guid TransactionId { get; set; }
 
-        // Nav Props
-        public Transaction Transaction { get; set; }
+        public Guid? TransactionId { get; set; }     // ✅ nullable
+        public Transaction? Transaction { get; set; } // ✅ nullable
     }
 }

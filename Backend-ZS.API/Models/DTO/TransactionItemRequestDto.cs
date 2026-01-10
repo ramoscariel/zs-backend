@@ -2,6 +2,6 @@
 {
     public class TransactionItemRequestDto
     {
-        public Guid TransactionId { get; set; }
+        public Guid? TransactionId { get; set; } // ✅ nullable
     }
 }

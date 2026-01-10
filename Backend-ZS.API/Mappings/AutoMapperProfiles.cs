@@ -42,7 +42,13 @@ namespace Backend_ZS.API.Mappings
 
             // AccessCard Mappings
             CreateMap<AccessCard, AccessCardDto>();
-            CreateMap<AccessCardRequestDto, AccessCard>();
+
+            CreateMap<AccessCardRequestDto, AccessCard>()
+                .ForMember(d => d.TransactionId,
+                    opt => opt.MapFrom(s =>
+                        s.TransactionId == Guid.Empty ? null : s.TransactionId))
+                .ForMember(d => d.TransactionType,
+                    opt => opt.MapFrom(_ => "AccessCard"));
 
             // Parking Mappings
             CreateMap<Parking, ParkingDto>();
