@@ -60,6 +60,8 @@ namespace Backend_ZS.API.Mappings
             // EntrnaceAccessCard Mapppings
             CreateMap<EntranceAccessCard, EntranceAccessCardDto>();
             CreateMap<EntranceAccessCardRequestDto, EntranceAccessCard>();
+
+            CreateMap<CashBox, CashBoxDto>();
         }
     }
 }

@@ -14,6 +14,7 @@ namespace Backend_ZS.API.Repositories
         public async Task<List<Transaction>> GetAllAsync()
         {
             return await dbContext.Transactions
+                .Include(t => t.CashBox)
                 .Include(t => t.Client)
                 .Include(t => t.TransactionItems)
                 .Include(t => t.Payments)
@@ -23,6 +24,7 @@ namespace Backend_ZS.API.Repositories
         public async Task<Transaction?> GetByIdAsync(Guid id)
         {
             return await dbContext.Transactions
+                .Include(t => t.CashBox)
                 .Include(t=> t.Client)
                 .Include(t=> t.TransactionItems)
                 .Include(t=> t.Payments)

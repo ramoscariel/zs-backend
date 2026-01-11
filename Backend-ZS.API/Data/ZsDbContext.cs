@@ -21,21 +21,23 @@ namespace Backend_ZS.API.Data
         public DbSet<Parking> Parkings { get; set; }
         public DbSet<EntranceTransaction> EntranceTransactions { get; set; }
         public DbSet<EntranceAccessCard> EntranceAccessCards { get; set; }
+        public DbSet<CashBox> CashBoxes { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             // TransactionItem -> Transaction (many TransactionItems belong to one Transaction)
-            modelBuilder.Entity<TransactionItem>(b =>
+            modelBuilder.Entity<CashBox>(b =>
             {
-                b.ToTable("TransactionItems");
-                b.HasKey(t => t.Id);
-                b.HasDiscriminator<string>("TransactionType")
-                 .HasValue<BarOrder>("BarOrder")
-                 .HasValue<AccessCard>("AccessCard")
-                 .HasValue<Parking>("Parking")
-                 .HasValue<EntranceTransaction>("EntranceTransaction");
+                b.ToTable("CashBoxes");
+                b.HasKey(x => x.Id);
+
+                b.Property(x => x.BusinessDate).HasColumnType("date");
+                b.Property(x => x.Status).HasConversion<string>();
+
+                b.HasIndex(x => x.BusinessDate).IsUnique(); // 1 caja por día
             });
 
 
@@ -44,19 +46,27 @@ namespace Backend_ZS.API.Data
                 b.ToTable("Transactions");
                 b.HasKey(t => t.Id);
 
+                b.Property(x => x.Status).HasConversion<string>();
+
                 // Client (1) <---> (0..*) Transaction
                 b.HasOne(t => t.Client)
                  .WithMany(c => c.Transactions)
                  .HasForeignKey(t => t.ClientId)
                  .OnDelete(DeleteBehavior.Restrict);
 
+                // ✅ CashBox (1) <---> (0..*) Transaction
+                b.HasOne(t => t.CashBox)
+                 .WithMany(cb => cb.Transactions)
+                 .HasForeignKey(t => t.CashBoxId)
+                 .OnDelete(DeleteBehavior.Restrict);
+
                 // Payments (1) <---> (0..*) Payment
-                // A Transaction can have many Payments. Payment holds the FK (TransactionId).
                 b.HasMany(t => t.Payments)
                  .WithOne(p => p.Transaction)
                  .HasForeignKey(p => p.TransactionId)
                  .OnDelete(DeleteBehavior.Restrict);
             });
+
 
             modelBuilder.Entity<BarOrderDetail>()
                 .HasKey(d => new { d.BarOrderId, d.BarProductId }); // Composite PK
