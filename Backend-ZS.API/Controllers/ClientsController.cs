@@ -2,104 +2,91 @@
 using Backend_ZS.API.Models.Domain;
 using Backend_ZS.API.Models.DTO;
 using Backend_ZS.API.Repositories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend_ZS.API.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
     public class ClientsController : ControllerBase
     {
         private readonly IClientRepository clientRepository;
         private readonly IMapper mapper;
+
         public ClientsController(IClientRepository clientRepository, IMapper mapper)
         {
             this.clientRepository = clientRepository;
             this.mapper = mapper;
         }
 
+        /* -------------------- HELPERS -------------------- */
+
+        private static string? NullIfWhiteSpace(string? s)
+            => string.IsNullOrWhiteSpace(s) ? null : s.Trim();
+
+        private static void Normalize(ClientRequestDto dto)
+        {
+            dto.Name = (dto.Name ?? "").Trim();
+            dto.NationalId = NullIfWhiteSpace(dto.NationalId);
+            dto.Email = NullIfWhiteSpace(dto.Email);
+            dto.Address = NullIfWhiteSpace(dto.Address);
+            dto.Number = NullIfWhiteSpace(dto.Number);
+        }
+
+        /* -------------------- GET -------------------- */
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            // Get Domain Models
             var clients = await clientRepository.GetAllAsync();
-
-            // Map Domain Models to DTOs
-            var clientsDto = mapper.Map<List<ClientDto>>(clients);
-
-            return Ok(clientsDto);
+            return Ok(mapper.Map<List<ClientDto>>(clients));
         }
 
-        [HttpGet]
-        [Route("{id:guid}")]
-        public async Task<IActionResult> GetById([FromRoute] Guid id)
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetById(Guid id)
         {
-            // Get Domain Model
-            var clientDomainModel = await clientRepository.GetByIdAsync(id);
-
-            if (clientDomainModel == null) {
-                return NotFound();
-            }
-
-            // 2 DTO
-            var clientDto = mapper.Map<ClientDto>(clientDomainModel);
-
-            return Ok(clientDto);
+            var client = await clientRepository.GetByIdAsync(id);
+            if (client == null) return NotFound();
+            return Ok(mapper.Map<ClientDto>(client));
         }
+
+        /* -------------------- CREATE -------------------- */
+
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ClientRequestDto clientRequestDto)
+        public async Task<IActionResult> Create([FromBody] ClientRequestDto dto)
         {
-            // Map RequestDto to Domain Model
-            var clientDomainModel = mapper.Map<Client>(clientRequestDto);
+            Normalize(dto);
 
-            // Create
-            clientDomainModel = await clientRepository.AddAsync(clientDomainModel);
+            var client = mapper.Map<Client>(dto);
+            client = await clientRepository.AddAsync(client);
 
-            // Map Domain Model to Dto
-            var clientDto = mapper.Map<ClientDto>(clientDomainModel);
-
-            return CreatedAtAction(nameof(GetById), new { id = clientDto.Id }, clientDto);
+            return CreatedAtAction(nameof(GetById),
+                new { id = client.Id },
+                mapper.Map<ClientDto>(client));
         }
 
-        [HttpPut]
-        [Route("{id:guid}")]
-        public async Task<IActionResult> Update([FromRoute] Guid id,[FromBody] ClientRequestDto clientRequestDto)
+        /* -------------------- UPDATE -------------------- */
+
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] ClientRequestDto dto)
         {
-            // Map RequestDto to Domain Model
-            var clientDomainModel = mapper.Map<Client>(clientRequestDto);
+            Normalize(dto);
 
-            clientDomainModel = await clientRepository.UpdateAsync(id, clientDomainModel);
+            var client = mapper.Map<Client>(dto);
+            client = await clientRepository.UpdateAsync(id, client);
 
-            if (clientDomainModel == null)
-            {
-                return NotFound();
-            }
+            if (client == null) return NotFound();
 
-            // Map Domain Model to Dto
-            var clientDto = mapper.Map<ClientDto>(clientDomainModel);
-
-            return Ok(clientDto);
+            return Ok(mapper.Map<ClientDto>(client));
         }
 
-        [HttpDelete]
-        [Route("{id:guid}")]
-        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        /* -------------------- DELETE -------------------- */
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id)
         {
-            // Delete Resource
-            var deletedClient = await clientRepository.DeleteAsync(id);
-
-            if (deletedClient == null)
-            {
-                return NotFound();
-            }
-
-            // Map Domain Model to DTO
-            var clientDto = mapper.Map<ClientDto>(deletedClient);
-
-            // return DTO to client
-            return Ok(clientDto);
+            var client = await clientRepository.DeleteAsync(id);
+            if (client == null) return NotFound();
+            return Ok(mapper.Map<ClientDto>(client));
         }
     }
-
 }

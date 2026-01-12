@@ -1,7 +1,7 @@
-﻿using AutoMapper;
+﻿// Controllers/ParkingsController.cs
+using AutoMapper;
 using Backend_ZS.API.Models.DTO;
 using Backend_ZS.API.Repositories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend_ZS.API.Controllers
@@ -12,6 +12,7 @@ namespace Backend_ZS.API.Controllers
     {
         private readonly IParkingRepository parkingRepository;
         private readonly IMapper mapper;
+
         public ParkingsController(IParkingRepository parkingRepository, IMapper mapper)
         {
             this.parkingRepository = parkingRepository;
@@ -21,12 +22,8 @@ namespace Backend_ZS.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            // Get Domain Models
             var parkings = await parkingRepository.GetAllAsync();
-
-            // Map Domain Models to DTOs
             var parkingsDto = mapper.Map<List<ParkingDto>>(parkings);
-
             return Ok(parkingsDto);
         }
 
@@ -34,32 +31,28 @@ namespace Backend_ZS.API.Controllers
         [Route("{id:guid}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
-            // Get Domain Model
             var parkingDomainModel = await parkingRepository.GetByIdAsync(id);
-
             if (parkingDomainModel == null)
             {
                 return NotFound();
             }
 
-            // Map Domain Model to DTO
             var parkingDto = mapper.Map<ParkingDto>(parkingDomainModel);
-
             return Ok(parkingDto);
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ParkingRequestDto parkingRequestDto)
         {
-            // Map RequestDto to Domain Model
-            var parkingDomainModel = mapper.Map<Models.Domain.Parking>(parkingRequestDto);
+            var parkingDomainModel = mapper.Map<Backend_ZS.API.Models.Domain.Parking>(parkingRequestDto);
 
-            // Create
+            // ✅ FIX: asegurar TransactionType desde el controller también
+            if (string.IsNullOrWhiteSpace(parkingDomainModel.TransactionType))
+                parkingDomainModel.TransactionType = "Parking";
+
             parkingDomainModel = await parkingRepository.AddAsync(parkingDomainModel);
 
-            // Map Domain Model to Dto
             var parkingDto = mapper.Map<ParkingDto>(parkingDomainModel);
-
             return CreatedAtAction(nameof(GetById), new { id = parkingDto.Id }, parkingDto);
         }
 
@@ -67,8 +60,11 @@ namespace Backend_ZS.API.Controllers
         [Route("{id:guid}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] ParkingRequestDto parkingRequestDto)
         {
-            // Map RequestDto to Domain Model
-            var parkingDomainModel = mapper.Map<Models.Domain.Parking>(parkingRequestDto);
+            var parkingDomainModel = mapper.Map<Backend_ZS.API.Models.Domain.Parking>(parkingRequestDto);
+
+            // ✅ FIX: asegurar TransactionType
+            if (string.IsNullOrWhiteSpace(parkingDomainModel.TransactionType))
+                parkingDomainModel.TransactionType = "Parking";
 
             parkingDomainModel = await parkingRepository.UpdateAsync(id, parkingDomainModel);
 
@@ -77,9 +73,7 @@ namespace Backend_ZS.API.Controllers
                 return NotFound();
             }
 
-            // Map Domain Model to Dto
             var parkingDto = mapper.Map<ParkingDto>(parkingDomainModel);
-
             return Ok(parkingDto);
         }
 
@@ -87,7 +81,6 @@ namespace Backend_ZS.API.Controllers
         [Route("{id:guid}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            // Delete Resource
             var deletedParking = await parkingRepository.DeleteAsync(id);
 
             if (deletedParking == null)
@@ -95,10 +88,7 @@ namespace Backend_ZS.API.Controllers
                 return NotFound();
             }
 
-            // Map Domain Model to DTO
             var parkingDto = mapper.Map<ParkingDto>(deletedParking);
-
-            // return DTO to client
             return Ok(parkingDto);
         }
     }

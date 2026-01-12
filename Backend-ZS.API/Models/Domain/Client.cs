@@ -3,14 +3,14 @@
     public class Client
     {
         public Guid Id { get; set; }
-        public string NationalId { get; set; } // cédula ecuatoriana
-        public string Name { get; set; }
-        public string Email { get; set; }
-        public string Address { get; set; }
-        public string Number { get; set; }
 
+        public string Name { get; set; } = string.Empty;
 
-        // Navigation Properties
-        public ICollection<Transaction> Transactions { get; set; }
+        public string? NationalId { get; set; } // opcional
+        public string? Email { get; set; }      // opcional
+        public string? Address { get; set; }    // opcional
+        public string? Number { get; set; }     // opcional
+
+        public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     }
 }

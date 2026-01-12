@@ -1,4 +1,4 @@
-﻿using System;
+﻿// Repositories/SqlParkingRepository.cs
 using Backend_ZS.API.Data;
 using Backend_ZS.API.Models.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -8,21 +8,29 @@ namespace Backend_ZS.API.Repositories
     public class SqlParkingRepository : IParkingRepository
     {
         private readonly ZsDbContext dbContext;
+
         public SqlParkingRepository(ZsDbContext dbContext)
         {
             this.dbContext = dbContext;
         }
+
         public async Task<List<Parking>> GetAllAsync()
         {
             return await dbContext.Parkings.ToListAsync();
         }
+
         public async Task<Parking?> GetByIdAsync(Guid id)
         {
             return await dbContext.Parkings.FindAsync(id);
         }
+
         public async Task<Parking> AddAsync(Parking parking)
         {
-            // Calculate Total: if ExitTime is null -> 0, otherwise $1 per hour (round up to the next full hour)
+            // ✅ FIX: TransactionType nunca puede ser NULL/empty
+            if (string.IsNullOrWhiteSpace(parking.TransactionType))
+                parking.TransactionType = "Parking";
+
+            // Calculate Total: if ExitTime is null -> 0, otherwise $1 per hour (round up)
             if (parking.ParkingExitTime == null)
             {
                 parking.Total = 0;
@@ -45,6 +53,7 @@ namespace Backend_ZS.API.Repositories
 
             await dbContext.Parkings.AddAsync(parking);
             await dbContext.SaveChangesAsync();
+
             return parking;
         }
 
@@ -56,12 +65,16 @@ namespace Backend_ZS.API.Repositories
                 return null;
             }
 
+            // ✅ FIX: asegurar tipo también al actualizar
+            if (string.IsNullOrWhiteSpace(existingParking.TransactionType))
+                existingParking.TransactionType = "Parking";
+
             // Update Properties
             existingParking.ParkingDate = parking.ParkingDate;
             existingParking.ParkingEntryTime = parking.ParkingEntryTime;
             existingParking.ParkingExitTime = parking.ParkingExitTime;
 
-            // Recalculate Total for the existingParking entity
+            // Recalculate Total
             if (existingParking.ParkingExitTime == null)
             {
                 existingParking.Total = 0;
@@ -85,6 +98,7 @@ namespace Backend_ZS.API.Repositories
             await dbContext.SaveChangesAsync();
             return existingParking;
         }
+
         public async Task<Parking?> DeleteAsync(Guid id)
         {
             var existingParking = await dbContext.Parkings.FindAsync(id);
