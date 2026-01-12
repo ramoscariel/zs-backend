@@ -2,7 +2,6 @@
 using Backend_ZS.API.Models.Domain;
 using Backend_ZS.API.Models.DTO;
 using Backend_ZS.API.Repositories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend_ZS.API.Controllers
@@ -23,12 +22,8 @@ namespace Backend_ZS.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            // Get Domain Models
             var keys = await keyRepository.GetAllAsync();
-
-            // Map Domain Models to DTOs
             var keysDto = mapper.Map<List<KeyDto>>(keys);
-
             return Ok(keysDto);
         }
 
@@ -37,10 +32,7 @@ namespace Backend_ZS.API.Controllers
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             var key = await keyRepository.GetByIdAsync(id);
-            if (key == null)
-            {
-                return NotFound();
-            }
+            if (key == null) return NotFound();
 
             var keyDto = mapper.Map<KeyDto>(key);
             return Ok(keyDto);
@@ -50,18 +42,12 @@ namespace Backend_ZS.API.Controllers
         [Route("{id:guid}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] KeyRequestDto keyRequestDto)
         {
-            // Map RequestDto to Domain Model
             var keyDomainModel = mapper.Map<Key>(keyRequestDto);
 
-            keyDomainModel = await keyRepository.UpdateAsync(id, keyDomainModel);
+            var updated = await keyRepository.UpdateAsync(id, keyDomainModel);
+            if (updated == null) return NotFound();
 
-            if (keyDomainModel == null)
-            {
-                return NotFound();
-            }
-
-            // Map Domain Model to Dto
-            var keyDto = mapper.Map<KeyDto>(keyDomainModel);
+            var keyDto = mapper.Map<KeyDto>(updated);
             return Ok(keyDto);
         }
     }

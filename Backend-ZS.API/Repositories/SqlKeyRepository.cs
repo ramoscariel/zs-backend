@@ -7,6 +7,7 @@ namespace Backend_ZS.API.Repositories
     public class SqlKeyRepository : IKeyRepository
     {
         private readonly ZsDbContext dbContext;
+
         public SqlKeyRepository(ZsDbContext dbContext)
         {
             this.dbContext = dbContext;
@@ -28,22 +29,20 @@ namespace Backend_ZS.API.Repositories
 
         public async Task<Key?> UpdateAsync(Guid id, Key key)
         {
-            var existingKey = await dbContext.Keys.FindAsync(id);
-            if (existingKey == null)
-            {
-                return null;
-            }
+            var existingKey = await dbContext.Keys.FirstOrDefaultAsync(k => k.Id == id);
+            if (existingKey == null) return null;
 
-            // Update Props
             existingKey.LastAssignedTo = key.LastAssignedTo;
             existingKey.Available = key.Available;
             existingKey.Notes = key.Notes;
 
-            // Load Nav Props
-            await dbContext.Entry(existingKey).Reference(k => k.LastAssignedClient).LoadAsync();
-
             await dbContext.SaveChangesAsync();
-            return existingKey;
+
+            // devolver con include para que venga LastAssignedClient
+            return await dbContext.Keys
+                .Include(k => k.LastAssignedClient)
+                .FirstOrDefaultAsync(k => k.Id == id);
         }
+
     }
 }

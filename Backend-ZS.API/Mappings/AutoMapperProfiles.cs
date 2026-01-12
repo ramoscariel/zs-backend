@@ -16,7 +16,7 @@ namespace Backend_ZS.API.Mappings
             CreateMap<BarProduct, BarProductDto>();
             CreateMap<BarProductRequestDto, BarProduct>();
 
-            //TransactionItem Mappings
+            // TransactionItem Mappings
             CreateMap<TransactionItem, TransactionItemDto>();
 
             // Transaction Mappings
@@ -36,9 +36,16 @@ namespace Backend_ZS.API.Mappings
             CreateMap<BarOrderDetailCreateRequestDto, BarOrderDetail>();
             CreateMap<BarOrderDetailUpdateRequestDto, BarOrderDetail>();
 
-            // Key Mappings
+            // Key Mappings (FIX)
             CreateMap<Key, KeyDto>();
-            CreateMap<KeyRequestDto, Key>();
+
+            // Al mapear request -> domain:
+            // - NO tocar Id ni KeyCode
+            // - NO mapear nav prop LastAssignedClient (solo FK LastAssignedTo)
+            CreateMap<KeyRequestDto, Key>()
+                .ForMember(d => d.Id, opt => opt.Ignore())
+                .ForMember(d => d.KeyCode, opt => opt.Ignore())
+                .ForMember(d => d.LastAssignedClient, opt => opt.Ignore());
 
             // AccessCard Mappings
             CreateMap<AccessCard, AccessCardDto>();
@@ -57,10 +64,11 @@ namespace Backend_ZS.API.Mappings
             CreateMap<EntranceTransaction, EntranceTransactionDto>();
             CreateMap<EntranceTransactionRequestDto, EntranceTransaction>();
 
-            // EntrnaceAccessCard Mapppings
+            // EntranceAccessCard Mappings
             CreateMap<EntranceAccessCard, EntranceAccessCardDto>();
             CreateMap<EntranceAccessCardRequestDto, EntranceAccessCard>();
 
+            // CashBox
             CreateMap<CashBox, CashBoxDto>();
         }
     }
