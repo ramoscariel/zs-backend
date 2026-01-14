@@ -33,12 +33,12 @@ namespace Backend_ZS.API.Repositories
             if (existingKey == null) return null;
 
             existingKey.LastAssignedTo = key.LastAssignedTo;
+            existingKey.LastAssignedAt = key.LastAssignedAt; // ✅ NUEVO
             existingKey.Available = key.Available;
             existingKey.Notes = key.Notes;
 
             await dbContext.SaveChangesAsync();
 
-            // devolver con include para que venga LastAssignedClient
             return await dbContext.Keys
                 .Include(k => k.LastAssignedClient)
                 .FirstOrDefaultAsync(k => k.Id == id);

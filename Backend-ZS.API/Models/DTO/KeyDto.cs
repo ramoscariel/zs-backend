@@ -1,6 +1,4 @@
-﻿using Backend_ZS.API.Models.DTO;
-
-namespace Backend_ZS.API.Models.DTO
+﻿namespace Backend_ZS.API.Models.DTO
 {
     public class KeyDto
     {
@@ -9,8 +7,10 @@ namespace Backend_ZS.API.Models.DTO
         public bool Available { get; set; }
         public string? Notes { get; set; }
 
-        // útil para debug/consumo frontend si quieres
         public Guid? LastAssignedTo { get; set; }
+
+        // ✅ NUEVO
+        public DateTime? LastAssignedAt { get; set; }
 
         public ClientDto? LastAssignedClient { get; set; }
     }

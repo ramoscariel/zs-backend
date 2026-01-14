@@ -36,16 +36,18 @@ namespace Backend_ZS.API.Mappings
             CreateMap<BarOrderDetailCreateRequestDto, BarOrderDetail>();
             CreateMap<BarOrderDetailUpdateRequestDto, BarOrderDetail>();
 
-            // Key Mappings (FIX)
+            // Key Mappings (✅ incluye LastAssignedAt)
             CreateMap<Key, KeyDto>();
 
             // Al mapear request -> domain:
             // - NO tocar Id ni KeyCode
             // - NO mapear nav prop LastAssignedClient (solo FK LastAssignedTo)
+            // - ✅ mapear LastAssignedAt
             CreateMap<KeyRequestDto, Key>()
                 .ForMember(d => d.Id, opt => opt.Ignore())
                 .ForMember(d => d.KeyCode, opt => opt.Ignore())
-                .ForMember(d => d.LastAssignedClient, opt => opt.Ignore());
+                .ForMember(d => d.LastAssignedClient, opt => opt.Ignore())
+                .ForMember(d => d.LastAssignedAt, opt => opt.MapFrom(s => s.LastAssignedAt));
 
             // AccessCard Mappings
             CreateMap<AccessCard, AccessCardDto>();
