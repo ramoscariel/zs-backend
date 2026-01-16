@@ -92,7 +92,8 @@ namespace Backend_ZS.API.Repositories
                 }
 
                 var hours = Math.Ceiling(duration.TotalHours);
-                existingParking.Total = hours * 1.0;
+                // Tarifa: $0.50 por hora o fracción
+                existingParking.Total = hours * 0.5;
             }
 
             await dbContext.SaveChangesAsync();
