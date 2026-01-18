@@ -102,16 +102,28 @@ namespace Backend_ZS.API.Repositories
 
         public async Task<Parking?> DeleteAsync(Guid id)
         {
-            var existingParking = await dbContext.Parkings.FindAsync(id);
-            if (existingParking == null)
+            // Trae lo mínimo sin tracking (evita conflictos por tracking/concurrency antiguo)
+            var existing = await dbContext.Parkings
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (existing == null) return null;
+
+            try
             {
+                // Attach + Remove asegura que EF arme el DELETE por PK
+                dbContext.Parkings.Attach(existing);
+                dbContext.Parkings.Remove(existing);
+
+                await dbContext.SaveChangesAsync();
+                return existing;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // Si no afectó filas: para DELETE lo tratamos como "ya no existe"
                 return null;
             }
-
-            dbContext.Parkings.Remove(existingParking);
-            await dbContext.SaveChangesAsync();
-
-            return existingParking;
         }
+
     }
 }

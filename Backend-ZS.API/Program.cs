@@ -20,7 +20,14 @@ builder.Services.AddCors(options =>
 });
 
 // MVC
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(o =>
+    {
+        o.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
+        o.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
+    });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
