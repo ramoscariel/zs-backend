@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Backend_ZS.API.Data;
 using Backend_ZS.API.Mappings;
 using Backend_ZS.API.Repositories;
@@ -14,7 +15,7 @@ builder.Services.AddCors(options =>
         p.WithOrigins("http://localhost:3000", "https://localhost:3000") // Next dev
          .AllowAnyHeader()
          .AllowAnyMethod()
-    // Si en algún momento usas cookies/autenticación, agrega:
+    // Si en algï¿½n momento usas cookies/autenticaciï¿½n, agrega:
     // .AllowCredentials()
     );
 });
@@ -26,6 +27,7 @@ builder.Services
     {
         o.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
         o.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
+        o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); // BUG #4: Allow enum string values
     });
 
 builder.Services.AddEndpointsApiExplorer();

@@ -66,6 +66,28 @@ namespace Backend_ZS.API.Controllers
             return Ok(mapper.Map<CashBoxDto>(cashBox));
         }
 
+        // POST: /api/CashBoxes/{id}/reopen
+        [HttpPost("{id:guid}/reopen")]
+        public async Task<IActionResult> Reopen([FromRoute] Guid id)
+        {
+            var cashBox = await dbContext.CashBoxes.FirstOrDefaultAsync(x => x.Id == id);
+            if (cashBox == null) return NotFound();
+
+            if (cashBox.Status == CashBoxStatus.Open)
+                return Conflict("La caja ya está abierta.");
+
+            var today = DateOnly.FromDateTime(DateTime.Now);
+            if (DateOnly.FromDateTime(cashBox.OpenedAt) != today)
+                return Conflict("Solo se puede reabrir una caja del día actual.");
+
+            cashBox.Status = CashBoxStatus.Open;
+            cashBox.ClosedAt = null;
+            cashBox.ClosingBalance = null;
+
+            await dbContext.SaveChangesAsync();
+            return Ok(mapper.Map<CashBoxDto>(cashBox));
+        }
+
         // POST: /api/CashBoxes/{id}/close
         [HttpPost("{id:guid}/close")]
         public async Task<IActionResult> Close([FromRoute] Guid id, [FromBody] CloseCashBoxRequestDto req)

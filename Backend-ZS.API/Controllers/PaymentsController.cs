@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using Backend_ZS.API.Data;
 using Backend_ZS.API.Models.Domain;
 using Backend_ZS.API.Models.DTO;
 using Backend_ZS.API.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend_ZS.API.Controllers
 {
@@ -13,10 +15,12 @@ namespace Backend_ZS.API.Controllers
     {
         private readonly IPaymentRepository paymentRepository;
         private readonly IMapper mapper;
-        public PaymentsController(IPaymentRepository paymentRepository, IMapper mapper)
+        private readonly ZsDbContext dbContext;
+        public PaymentsController(IPaymentRepository paymentRepository, IMapper mapper, ZsDbContext dbContext)
         {
             this.paymentRepository = paymentRepository;
             this.mapper = mapper;
+            this.dbContext = dbContext;
         }
 
         [HttpGet]
@@ -51,6 +55,13 @@ namespace Backend_ZS.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] PaymentRequestDto paymentRequestDto)
         {
+            // Validate TransactionId exists
+            var transactionExists = await dbContext.Transactions.AnyAsync(t => t.Id == paymentRequestDto.TransactionId);
+            if (!transactionExists)
+            {
+                return BadRequest("La transacción especificada no existe.");
+            }
+
             // Map RequestDto to Domain Model
             var paymentDomainModel = mapper.Map<Payment>(paymentRequestDto);
 

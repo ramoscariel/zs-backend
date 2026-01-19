@@ -32,8 +32,14 @@ namespace Backend_ZS.API.Repositories
             var existingKey = await dbContext.Keys.FirstOrDefaultAsync(k => k.Id == id);
             if (existingKey == null) return null;
 
-            existingKey.LastAssignedTo = key.LastAssignedTo;
-            existingKey.LastAssignedAt = key.LastAssignedAt; // ✅ NUEVO
+            // Only update LastAssignedTo/LastAssignedAt if explicitly provided
+            // This preserves history when key is returned (available: true without new assignment)
+            if (key.LastAssignedTo.HasValue)
+            {
+                existingKey.LastAssignedTo = key.LastAssignedTo;
+                existingKey.LastAssignedAt = key.LastAssignedAt ?? DateTime.UtcNow;
+            }
+
             existingKey.Available = key.Available;
             existingKey.Notes = key.Notes;
 
