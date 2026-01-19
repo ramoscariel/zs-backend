@@ -113,8 +113,8 @@ namespace Backend_ZS.API.Migrations
                     legacyCashBoxId,
                     new DateOnly(2000, 1, 1),
                     "Closed",
-                    DateTime.UtcNow,
-                    DateTime.UtcNow,
+                    new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     0.0,
                     0.0
                 }
