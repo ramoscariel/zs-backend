@@ -29,7 +29,9 @@ namespace Backend_ZS.API.Mappings
 
             // BarOrder Mappings
             CreateMap<BarOrder, BarOrderDto>();
-            CreateMap<BarOrderRequestDto, BarOrder>();
+            CreateMap<BarOrderRequestDto, BarOrder>()
+                .ForMember(d => d.TransactionType,
+                    opt => opt.MapFrom(_ => "BarOrder"));
 
             // BarOrderDetail Mappings
             CreateMap<BarOrderDetail, BarOrderDetailDto>();
@@ -60,11 +62,15 @@ namespace Backend_ZS.API.Mappings
 
             // Parking Mappings
             CreateMap<Parking, ParkingDto>();
-            CreateMap<ParkingRequestDto, Parking>();
+            CreateMap<ParkingRequestDto, Parking>()
+                .ForMember(d => d.TransactionType,
+                    opt => opt.MapFrom(_ => "Parking"));
 
             // EntranceTransaction Mappings
             CreateMap<EntranceTransaction, EntranceTransactionDto>();
-            CreateMap<EntranceTransactionRequestDto, EntranceTransaction>();
+            CreateMap<EntranceTransactionRequestDto, EntranceTransaction>()
+                .ForMember(d => d.TransactionType,
+                    opt => opt.MapFrom(_ => "EntranceTransaction"));
 
             // EntranceAccessCard Mappings
             CreateMap<EntranceAccessCard, EntranceAccessCardDto>();

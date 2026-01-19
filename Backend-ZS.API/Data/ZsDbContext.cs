@@ -286,6 +286,20 @@ namespace Backend_ZS.API.Data
             modelBuilder.Entity<EntranceTransaction>()
                 .Property(e => e.ExitTime)
                 .HasColumnName("ExitTime");
+
+            // Configure TransactionItem to use TransactionType as discriminator
+            modelBuilder.Entity<TransactionItem>(b =>
+            {
+                b.HasDiscriminator<string>("TransactionType")
+                    .HasValue<AccessCard>("AccessCard")
+                    .HasValue<BarOrder>("BarOrder")
+                    .HasValue<EntranceTransaction>("EntranceTransaction")
+                    .HasValue<Parking>("Parking");
+
+                b.Property(x => x.TransactionType)
+                    .HasMaxLength(21)
+                    .IsRequired();
+            });
         }
     }
 }
