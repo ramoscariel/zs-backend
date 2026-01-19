@@ -28,16 +28,13 @@ namespace Backend_ZS.API.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // TransactionItem -> Transaction (many TransactionItems belong to one Transaction)
+            // CashBox configuration
             modelBuilder.Entity<CashBox>(b =>
             {
                 b.ToTable("CashBoxes");
                 b.HasKey(x => x.Id);
 
-                b.Property(x => x.BusinessDate).HasColumnType("date");
                 b.Property(x => x.Status).HasConversion<string>();
-
-                b.HasIndex(x => x.BusinessDate).IsUnique(); // 1 caja por día
             });
 
 
@@ -273,6 +270,22 @@ namespace Backend_ZS.API.Data
             modelBuilder.Entity<Client>().HasData(clients);
             modelBuilder.Entity<BarProduct>().HasData(barProducts);
             modelBuilder.Entity<Key>().HasData(keys);
+
+            // Configure shared column names for Parking and EntranceTransaction
+            // Both implement IEntrance and share the same EntryTime/ExitTime columns
+            modelBuilder.Entity<Parking>()
+                .Property(p => p.EntryTime)
+                .HasColumnName("EntryTime");
+            modelBuilder.Entity<Parking>()
+                .Property(p => p.ExitTime)
+                .HasColumnName("ExitTime");
+
+            modelBuilder.Entity<EntranceTransaction>()
+                .Property(e => e.EntryTime)
+                .HasColumnName("EntryTime");
+            modelBuilder.Entity<EntranceTransaction>()
+                .Property(e => e.ExitTime)
+                .HasColumnName("ExitTime");
         }
     }
 }

@@ -4,6 +4,7 @@ using Backend_ZS.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend_ZS.API.Migrations
 {
     [DbContext(typeof(ZsDbContext))]
-    partial class ZsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260119154750_RemoveBusinessDateFromCashBox")]
+    partial class RemoveBusinessDateFromCashBox
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -608,6 +611,10 @@ namespace Backend_ZS.API.Migrations
             modelBuilder.Entity("Backend_ZS.API.Models.Domain.AccessCard", b =>
                 {
                     b.HasBaseType("Backend_ZS.API.Models.Domain.TransactionItem");
+
+                    b.Property<string>("HolderName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Uses")
                         .HasColumnType("int");

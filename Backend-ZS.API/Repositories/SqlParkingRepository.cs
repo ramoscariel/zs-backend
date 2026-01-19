@@ -30,25 +30,21 @@ namespace Backend_ZS.API.Repositories
             if (string.IsNullOrWhiteSpace(parking.TransactionType))
                 parking.TransactionType = "Parking";
 
-            // Calculate Total: if ExitTime is null -> 0, otherwise $1 per hour (round up)
-            if (parking.ParkingExitTime == null)
+            // Calculate Total: if ExitTime is null -> 0, otherwise $0.50 per hour (round up)
+            if (parking.ExitTime == null)
             {
                 parking.Total = 0;
             }
             else
             {
-                var entry = parking.ParkingEntryTime;
-                var exit = parking.ParkingExitTime.Value;
-
-                var duration = exit.ToTimeSpan() - entry.ToTimeSpan();
+                var duration = parking.ExitTime.Value - parking.EntryTime;
                 if (duration < TimeSpan.Zero)
                 {
-                    // handle spanning midnight
-                    duration += TimeSpan.FromDays(1);
+                    duration = TimeSpan.Zero;
                 }
 
                 var hours = Math.Ceiling(duration.TotalHours);
-                parking.Total = hours * 1.0;
+                parking.Total = hours * 0.5;
             }
 
             await dbContext.Parkings.AddAsync(parking);
@@ -70,25 +66,20 @@ namespace Backend_ZS.API.Repositories
                 existingParking.TransactionType = "Parking";
 
             // Update Properties
-            existingParking.ParkingDate = parking.ParkingDate;
-            existingParking.ParkingEntryTime = parking.ParkingEntryTime;
-            existingParking.ParkingExitTime = parking.ParkingExitTime;
+            existingParking.EntryTime = parking.EntryTime;
+            existingParking.ExitTime = parking.ExitTime;
 
             // Recalculate Total
-            if (existingParking.ParkingExitTime == null)
+            if (existingParking.ExitTime == null)
             {
                 existingParking.Total = 0;
             }
             else
             {
-                var entry = existingParking.ParkingEntryTime;
-                var exit = existingParking.ParkingExitTime.Value;
-
-                var duration = exit.ToTimeSpan() - entry.ToTimeSpan();
+                var duration = existingParking.ExitTime.Value - existingParking.EntryTime;
                 if (duration < TimeSpan.Zero)
                 {
-                    // handle spanning midnight
-                    duration += TimeSpan.FromDays(1);
+                    duration = TimeSpan.Zero;
                 }
 
                 var hours = Math.Ceiling(duration.TotalHours);

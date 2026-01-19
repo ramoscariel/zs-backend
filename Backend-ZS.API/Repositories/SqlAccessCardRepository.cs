@@ -38,7 +38,6 @@ namespace Backend_ZS.API.Repositories
             // Update Properties
             existingCard.Total = accessCard.Total;
             existingCard.Uses = accessCard.Uses;
-            existingCard.HolderName = accessCard.HolderName;
 
             await dbContext.SaveChangesAsync();
             return existingCard;

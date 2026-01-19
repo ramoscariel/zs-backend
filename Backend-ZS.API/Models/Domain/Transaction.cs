@@ -1,6 +1,6 @@
 ﻿namespace Backend_ZS.API.Models.Domain
 {
-    public class Transaction
+    public class Transaction : ISession
     {
         public Guid Id { get; set; }
 

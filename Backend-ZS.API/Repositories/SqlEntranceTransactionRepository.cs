@@ -47,9 +47,8 @@ namespace Backend_ZS.API.Repositories
             }
 
             // Update properties
-            existing.EntranceDate = entranceTransaction.EntranceDate;
-            existing.EntranceEntryTime = entranceTransaction.EntranceEntryTime;
-            existing.EntranceExitTime = entranceTransaction.EntranceExitTime;
+            existing.EntryTime = entranceTransaction.EntryTime;
+            existing.ExitTime = entranceTransaction.ExitTime;
             existing.NumberAdults = entranceTransaction.NumberAdults;
             existing.NumberChildren = entranceTransaction.NumberChildren;
             existing.NumberSeniors = entranceTransaction.NumberSeniors;

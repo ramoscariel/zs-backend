@@ -2,8 +2,7 @@
 {
     public class ParkingDto : TransactionItemDto
     {
-        public DateOnly ParkingDate { get; set; }
-        public TimeOnly ParkingEntryTime { get; set; }
-        public TimeOnly? ParkingExitTime { get; set; }
+        public DateTime EntryTime { get; set; }
+        public DateTime? ExitTime { get; set; }
     }
 }

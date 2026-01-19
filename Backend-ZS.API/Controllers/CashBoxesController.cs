@@ -24,11 +24,11 @@ namespace Backend_ZS.API.Controllers
         [HttpGet("today")]
         public async Task<IActionResult> GetToday([FromQuery] DateOnly? date = null)
         {
-            var businessDate = date ?? DateOnly.FromDateTime(DateTime.Now);
+            var targetDate = date ?? DateOnly.FromDateTime(DateTime.Now);
 
             var cashBox = await dbContext.CashBoxes
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.BusinessDate == businessDate);
+                .FirstOrDefaultAsync(x => DateOnly.FromDateTime(x.OpenedAt) == targetDate);
 
             if (cashBox == null) return NotFound();
 
@@ -39,23 +39,22 @@ namespace Backend_ZS.API.Controllers
         [HttpPost("open")]
         public async Task<IActionResult> Open([FromBody] OpenCashBoxRequestDto req)
         {
-            var businessDate = req.BusinessDate ?? DateOnly.FromDateTime(DateTime.Now);
+            var today = DateOnly.FromDateTime(DateTime.Now);
 
             var existing = await dbContext.CashBoxes
-                .FirstOrDefaultAsync(x => x.BusinessDate == businessDate);
+                .FirstOrDefaultAsync(x => DateOnly.FromDateTime(x.OpenedAt) == today);
 
             if (existing != null)
             {
                 if (existing.Status == CashBoxStatus.Open)
-                    return Conflict($"Ya existe una caja ABIERTA para {businessDate}.");
+                    return Conflict($"Ya existe una caja ABIERTA para {today}.");
 
-                return Conflict($"Ya existe una caja CERRADA para {businessDate}.");
+                return Conflict($"Ya existe una caja CERRADA para {today}.");
             }
 
             var cashBox = new CashBox
             {
                 Id = Guid.NewGuid(),
-                BusinessDate = businessDate,
                 Status = CashBoxStatus.Open,
                 OpenedAt = DateTime.UtcNow,
                 OpeningBalance = req.OpeningBalance
@@ -100,8 +99,8 @@ namespace Backend_ZS.API.Controllers
         {
             var list = await dbContext.CashBoxes
                 .AsNoTracking()
-                .Where(x => x.BusinessDate >= from && x.BusinessDate <= to)
-                .OrderByDescending(x => x.BusinessDate)
+                .Where(x => DateOnly.FromDateTime(x.OpenedAt) >= from && DateOnly.FromDateTime(x.OpenedAt) <= to)
+                .OrderByDescending(x => x.OpenedAt)
                 .ToListAsync();
 
             return Ok(mapper.Map<List<CashBoxDto>>(list));

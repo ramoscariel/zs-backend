@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
-using Backend_ZS.API.Data;
 using Backend_ZS.API.Models.Domain;
 using Backend_ZS.API.Models.DTO;
 using Backend_ZS.API.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Backend_ZS.API.Controllers
 {
@@ -14,17 +12,14 @@ namespace Backend_ZS.API.Controllers
     {
         private readonly IAccessCardRepository accessCardRepository;
         private readonly IMapper mapper;
-        private readonly ZsDbContext dbContext;
 
         public AccessCardsController(
             IAccessCardRepository accessCardRepository,
-            IMapper mapper,
-            ZsDbContext dbContext
+            IMapper mapper
         )
         {
             this.accessCardRepository = accessCardRepository;
             this.mapper = mapper;
-            this.dbContext = dbContext;
         }
 
         // GET: api/AccessCards
@@ -47,24 +42,6 @@ namespace Backend_ZS.API.Controllers
             return Ok(accessCardDto);
         }
 
-        // ✅ NUEVO: GET: api/AccessCards/by-holder/{holderName}
-        // Busca por nombre del titular (exact match; si quieres, lo hacemos case-insensitive)
-        [HttpGet("by-holder/{holderName}")]
-        public async Task<IActionResult> GetByHolder([FromRoute] string holderName)
-        {
-            holderName = (holderName ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(holderName))
-                return BadRequest("holderName requerido.");
-
-            var card = await dbContext.AccessCards
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.HolderName == holderName);
-
-            if (card == null) return NotFound();
-
-            return Ok(mapper.Map<AccessCardDto>(card));
-        }
-
         // POST: api/AccessCards
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AccessCardRequestDto accessCardRequestDto)
@@ -76,11 +53,6 @@ namespace Backend_ZS.API.Controllers
             if (accessCardRequestDto.TransactionId == Guid.Empty)
                 accessCardRequestDto.TransactionId = Guid.Empty; // dejamos vacío; el mapper lo convertirá a null si lo configuraste
 
-            // ✅ Validación mínima: HolderName obligatorio
-            var holder = (accessCardRequestDto.HolderName ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(holder))
-                return BadRequest("HolderName es obligatorio.");
-
             // Si Uses viene 0, por defecto 10
             if (accessCardRequestDto.Uses <= 0)
                 accessCardRequestDto.Uses = 10;
@@ -88,7 +60,6 @@ namespace Backend_ZS.API.Controllers
             var accessCardDomainModel = mapper.Map<AccessCard>(accessCardRequestDto);
 
             // ✅ Garantiza valores seguros
-            accessCardDomainModel.HolderName = holder;
             accessCardDomainModel.TransactionType = "AccessCard";
 
             // ✅ EVITA FK: si no estás creando dentro de una Transaction, deja TransactionId nulo
@@ -109,11 +80,6 @@ namespace Backend_ZS.API.Controllers
             if (accessCardRequestDto == null)
                 return BadRequest("Body requerido.");
 
-            // validación mínima
-            var holder = (accessCardRequestDto.HolderName ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(holder))
-                return BadRequest("HolderName es obligatorio.");
-
             if (accessCardRequestDto.Uses < 0)
                 return BadRequest("Uses no puede ser negativo.");
 
@@ -122,8 +88,6 @@ namespace Backend_ZS.API.Controllers
             // seguridad: nunca cambies TransactionId por PUT aquí (se usa para relacionar)
             // si tu mapper lo está seteando, lo anulamos:
             accessCardDomainModel.TransactionId = null;
-
-            accessCardDomainModel.HolderName = holder;
             accessCardDomainModel.TransactionType = "AccessCard";
 
             var updated = await accessCardRepository.UpdateAsync(id, accessCardDomainModel);

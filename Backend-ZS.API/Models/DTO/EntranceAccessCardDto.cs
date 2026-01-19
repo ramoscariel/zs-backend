@@ -4,8 +4,7 @@
     {
         public Guid Id { get; set; }
         public Guid AccessCardId { get; set; }
-        public DateOnly EntranceDate { get; set; }
-        public TimeOnly EntranceEntryTime { get; set; }
-        public TimeOnly? EntranceExitTime { get; set; }
+        public DateTime EntryTime { get; set; }
+        public DateTime? ExitTime { get; set; }
     }
 }

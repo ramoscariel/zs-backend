@@ -59,7 +59,7 @@ namespace Backend_ZS.API.Controllers
             var today = DateOnly.FromDateTime(DateTime.Now);
 
             var cashBox = await dbContext.CashBoxes
-                .FirstOrDefaultAsync(x => x.BusinessDate == today && x.Status == CashBoxStatus.Open);
+                .FirstOrDefaultAsync(x => DateOnly.FromDateTime(x.OpenedAt) == today && x.Status == CashBoxStatus.Open);
 
             if (cashBox == null)
                 return Conflict("No hay caja abierta hoy. Abre caja antes de crear una cuenta.");

@@ -1,11 +1,8 @@
 ﻿namespace Backend_ZS.API.Models.Domain
 {
-    public class CashBox
+    public class CashBox : ISession
     {
         public Guid Id { get; set; }
-
-        // Día operativo (ej: 2026-01-11)
-        public DateOnly BusinessDate { get; set; }
 
         public CashBoxStatus Status { get; set; } = CashBoxStatus.Open;
 

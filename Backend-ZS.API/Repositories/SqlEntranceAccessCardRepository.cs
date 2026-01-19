@@ -89,9 +89,8 @@ namespace Backend_ZS.API.Repositories
             }
 
             // Update other properties
-            existing.EntranceDate = entranceAccessCard.EntranceDate;
-            existing.EntranceEntryTime = entranceAccessCard.EntranceEntryTime;
-            existing.EntranceExitTime = entranceAccessCard.EntranceExitTime;
+            existing.EntryTime = entranceAccessCard.EntryTime;
+            existing.ExitTime = entranceAccessCard.ExitTime;
 
             await dbContext.SaveChangesAsync();
 
