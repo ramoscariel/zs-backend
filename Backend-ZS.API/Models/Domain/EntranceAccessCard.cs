@@ -7,6 +7,7 @@ namespace Backend_ZS.API.Models.Domain
         public Guid AccessCardId { get; set; }
         public DateTime EntryTime { get; set; }
         public DateTime? ExitTime { get; set; }
+        public string? User { get; set; }
 
         // Navigation Properties
         public AccessCard AccessCard { get; set; }

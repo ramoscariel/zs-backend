@@ -91,6 +91,7 @@ namespace Backend_ZS.API.Repositories
             // Update other properties
             existing.EntryTime = entranceAccessCard.EntryTime;
             existing.ExitTime = entranceAccessCard.ExitTime;
+            existing.User = entranceAccessCard.User;
 
             await dbContext.SaveChangesAsync();
 
