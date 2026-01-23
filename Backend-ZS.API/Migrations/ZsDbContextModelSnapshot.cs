@@ -286,6 +286,9 @@ namespace Backend_ZS.API.Migrations
                     b.Property<string>("User")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Qty")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AccessCardId");
