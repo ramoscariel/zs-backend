@@ -61,6 +61,14 @@ builder.Services.AddScoped<IBarOrderService, SqlBarOrderService>();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ZsDbContext>();
+    db.Database.SetCommandTimeout(300);
+    db.Database.Migrate();
+}
+
+
 // ✅ Swagger habilitado SIEMPRE (Production incluido)
 app.UseSwagger();
 app.UseSwaggerUI(c =>
