@@ -11,9 +11,6 @@ namespace Backend_ZS.API.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "User",
-                table: "EntranceAccessCards");
 
             migrationBuilder.AddColumn<DateOnly>(
                 name: "EntranceDate",
