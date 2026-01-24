@@ -26,7 +26,7 @@ namespace Backend_ZS.API.Controllers
         private static void Normalize(ClientRequestDto dto)
         {
             dto.Name = (dto.Name ?? "").Trim();
-            dto.NationalId = NullIfWhiteSpace(dto.NationalId);
+            dto.DocumentNumber = NullIfWhiteSpace(dto.DocumentNumber);
             dto.Email = NullIfWhiteSpace(dto.Email);
             dto.Address = NullIfWhiteSpace(dto.Address);
             dto.Number = NullIfWhiteSpace(dto.Number);

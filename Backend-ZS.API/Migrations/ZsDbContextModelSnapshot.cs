@@ -158,14 +158,17 @@ namespace Backend_ZS.API.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("DocumentNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("DocumentType")
+                        .HasColumnType("int");
+
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NationalId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Number")
@@ -180,90 +183,90 @@ namespace Backend_ZS.API.Migrations
                         {
                             Id = new Guid("f7248fc3-2585-4efb-8d1d-1c555f4087f6"),
                             Address = "Av. Amazonas N34-120, Quito",
+                            DocumentNumber = "0102030405",
                             Email = "carlos.perez@example.com",
                             Name = "Carlos Pérez",
-                            NationalId = "0102030405",
                             Number = "0991234567"
                         },
                         new
                         {
                             Id = new Guid("b68c1f84-4a8c-4ee3-8a6a-4b35a27ad331"),
                             Address = "Calle 10 y Av. 6 de Diciembre, Quito",
+                            DocumentNumber = "1102233445",
                             Email = "maria.gomez@example.com",
                             Name = "María Gómez",
-                            NationalId = "1102233445",
                             Number = "0987654321"
                         },
                         new
                         {
                             Id = new Guid("c8b5c2df-4b91-4239-b134-88a3d52f91d8"),
                             Address = "Cdla. Los Ceibos, Guayaquil",
+                            DocumentNumber = "0923456789",
                             Email = "luis.torres@example.com",
                             Name = "Luis Torres",
-                            NationalId = "0923456789",
                             Number = "0971122334"
                         },
                         new
                         {
                             Id = new Guid("e6ab1df7-b60b-4db9-96f7-4f6cb5f00219"),
                             Address = "Av. Flavio Alfaro y 13 de Abril, Manta",
+                            DocumentNumber = "1309876543",
                             Email = "ana.morales@example.com",
                             Name = "Ana Morales",
-                            NationalId = "1309876543",
                             Number = "0969988776"
                         },
                         new
                         {
                             Id = new Guid("f97b5672-00b9-48c9-85b4-3b897e8af8bb"),
                             Address = "La Mariscal, Av. Colón y Reina Victoria, Quito",
+                            DocumentNumber = "1723345566",
                             Email = "jose.herrera@example.com",
                             Name = "José Herrera",
-                            NationalId = "1723345566",
                             Number = "0995566778"
                         },
                         new
                         {
                             Id = new Guid("b02cfb22-4e26-4dd3-8e62-43d29cb86e1e"),
                             Address = "Centro Histórico, Loja",
+                            DocumentNumber = "1803342211",
                             Email = "sofia.ruiz@example.com",
                             Name = "Sofía Ruiz",
-                            NationalId = "1803342211",
                             Number = "0954433221"
                         },
                         new
                         {
                             Id = new Guid("3a28b14c-4f9d-4d4c-9021-1894a8b6a2d1"),
                             Address = "Av. de las Américas, Cuenca",
+                            DocumentNumber = "0911223344",
                             Email = "andres.castillo@example.com",
                             Name = "Andrés Castillo",
-                            NationalId = "0911223344",
                             Number = "0945566778"
                         },
                         new
                         {
                             Id = new Guid("d5127f6c-6b5b-4b4a-a9e1-2b8d4f508e45"),
                             Address = "Av. Eloy Alfaro y Portugal, Quito",
+                            DocumentNumber = "1204433221",
                             Email = "gabriela.chavez@example.com",
                             Name = "Gabriela Chávez",
-                            NationalId = "1204433221",
                             Number = "0983344556"
                         },
                         new
                         {
                             Id = new Guid("1f8a42f5-9e9a-4c1b-bc5a-8d4129fd78c2"),
                             Address = "Cdla. Alborada, Mz. 103, Guayaquil",
+                            DocumentNumber = "1005566778",
                             Email = "ricardo.mendoza@example.com",
                             Name = "Ricardo Mendoza",
-                            NationalId = "1005566778",
                             Number = "0978899001"
                         },
                         new
                         {
                             Id = new Guid("e71b9b12-84c3-4c6b-b6e5-5f889b5cf2b7"),
                             Address = "Av. Universitaria, Ambato",
+                            DocumentNumber = "1509988776",
                             Email = "elena.vega@example.com",
                             Name = "Elena Vega",
-                            NationalId = "1509988776",
                             Number = "0932211445"
                         });
                 });
@@ -285,12 +288,6 @@ namespace Backend_ZS.API.Migrations
 
                     b.Property<TimeOnly?>("EntranceExitTime")
                         .HasColumnType("time");
-
-                    b.Property<DateTime>("EntryTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("ExitTime")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 

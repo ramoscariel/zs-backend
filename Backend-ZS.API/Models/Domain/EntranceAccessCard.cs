@@ -1,4 +1,6 @@
-﻿namespace Backend_ZS.API.Models.Domain
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Backend_ZS.API.Models.Domain
 {
     public class EntranceAccessCard : IEntrance
     {
@@ -10,7 +12,7 @@
         public TimeOnly? EntranceExitTime { get; set; }
 
 
-        // 🔹 Implementación de IEntrance
+        [NotMapped]
         public DateTime EntryTime
         {
             get => EntranceDate.ToDateTime(EntranceEntryTime);
@@ -21,6 +23,7 @@
             }
         }
 
+        [NotMapped]
         public DateTime? ExitTime
         {
             get => EntranceExitTime.HasValue

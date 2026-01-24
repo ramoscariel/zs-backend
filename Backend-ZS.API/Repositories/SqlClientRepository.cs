@@ -36,11 +36,12 @@ namespace Backend_ZS.API.Repositories
             }
 
             // Update Properties
-            existingClient.NationalId = client.NationalId;
+            existingClient.DocumentNumber = client.DocumentNumber;
             existingClient.Name = client.Name;
             existingClient.Email = client.Email;
             existingClient.Address = client.Address;
             existingClient.Number = client.Number;
+            existingClient.DocumentType = client.DocumentType;
 
             await dbContext.SaveChangesAsync();
             return existingClient;

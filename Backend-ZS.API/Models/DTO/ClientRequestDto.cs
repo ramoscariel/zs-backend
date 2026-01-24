@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Backend_ZS.API.Models.Domain;
+using System.ComponentModel.DataAnnotations;
 
 namespace Backend_ZS.API.Models.DTO
 {
@@ -8,8 +9,7 @@ namespace Backend_ZS.API.Models.DTO
         [MaxLength(50)]
         public string Name { get; set; } = string.Empty;
 
-        [StringLength(10)]
-        public string? NationalId { get; set; }
+        public string? DocumentNumber { get; set; } // opcional
 
         [EmailAddress]
         public string? Email { get; set; }
@@ -19,5 +19,7 @@ namespace Backend_ZS.API.Models.DTO
 
         [StringLength(10)]
         public string? Number { get; set; }
+
+        public DocumentType? DocumentType { get; set; }
     }
 }
