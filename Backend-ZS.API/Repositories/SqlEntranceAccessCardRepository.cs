@@ -31,13 +31,7 @@ namespace Backend_ZS.API.Repositories
             var card = await dbContext.AccessCards.FindAsync(entranceAccessCard.AccessCardId);
             if (card == null) throw new InvalidOperationException("Associated AccessCard not found.");
 
-            var qty = entranceAccessCard.Qty <= 0 ? 1 : entranceAccessCard.Qty;
-
-            if (card.Uses < qty)
-                throw new InvalidOperationException($"Associated AccessCard has no remaining uses. Remaining: {card.Uses}");
-
-            card.Uses -= qty;                 // ✅ antes era -1
-            entranceAccessCard.Qty = qty;     // ✅ normaliza
+            card.Uses -= 1;                
 
             await dbContext.EntranceAccessCards.AddAsync(entranceAccessCard);
             await dbContext.SaveChangesAsync();
@@ -51,7 +45,6 @@ namespace Backend_ZS.API.Repositories
             var existing = await dbContext.EntranceAccessCards.FindAsync(id);
             if (existing == null) return null;
 
-            var newQty = entranceAccessCard.Qty <= 0 ? 1 : entranceAccessCard.Qty;
 
             // Si cambia de tarjeta
             if (existing.AccessCardId != entranceAccessCard.AccessCardId)
@@ -62,16 +55,14 @@ namespace Backend_ZS.API.Repositories
                 if (newCard == null) throw new InvalidOperationException("Associated new AccessCard not found.");
 
                 // devolver usos de la vieja tarjeta (por la qty anterior)
-                if (oldCard != null) oldCard.Uses += Math.Max(1, existing.Qty);
+                if (oldCard != null) oldCard.Uses += 1;
 
                 // consumir usos de la nueva tarjeta (por la nueva qty)
-                if (newCard.Uses < newQty)
-                    throw new InvalidOperationException($"Associated new AccessCard has no remaining uses. Remaining: {newCard.Uses}");
+                
 
-                newCard.Uses -= newQty;
+                newCard.Uses -= 1;
 
                 existing.AccessCardId = entranceAccessCard.AccessCardId;
-                existing.Qty = newQty;
             }
             else
             {
@@ -79,21 +70,8 @@ namespace Backend_ZS.API.Repositories
                 var card = await dbContext.AccessCards.FindAsync(existing.AccessCardId);
                 if (card == null) throw new InvalidOperationException("Associated AccessCard not found.");
 
-                var oldQty = Math.Max(1, existing.Qty);
-                var diff = newQty - oldQty;
-
-                if (diff > 0)
-                {
-                    if (card.Uses < diff)
-                        throw new InvalidOperationException($"Associated AccessCard has no remaining uses. Remaining: {card.Uses}");
-                    card.Uses -= diff;
-                }
-                else if (diff < 0)
-                {
-                    card.Uses += (-diff);
-                }
-
-                existing.Qty = newQty;
+                card.Uses -= 1;
+               
             }
 
             existing.EntranceDate = entranceAccessCard.EntranceDate;
@@ -118,7 +96,7 @@ namespace Backend_ZS.API.Repositories
             var card = await dbContext.AccessCards.FindAsync(existing.AccessCardId);
             if (card != null)
             {
-                card.Uses += Math.Max(1, existing.Qty);
+                card.Uses += 1;
             }
 
             dbContext.EntranceAccessCards.Remove(existing);
