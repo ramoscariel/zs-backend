@@ -12,10 +12,14 @@ var corsPolicy = "_nextCors";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(corsPolicy, p =>
-        p.WithOrigins("http://localhost:3000", "https://localhost:3000") // Next dev
-         .AllowAnyHeader()
-         .AllowAnyMethod()
-    // Si en alg�n momento usas cookies/autenticaci�n, agrega:
+        p.WithOrigins(
+            "http://localhost:3000",
+            "https://localhost:3000",
+            // prod: tu front en Vercel/Netlify/etc (ajusta el dominio real)
+            "https://zs-frontend.vercel.app"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
     // .AllowCredentials()
     );
 });
@@ -27,7 +31,7 @@ builder.Services
     {
         o.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
         o.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
-        o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); // BUG #4: Allow enum string values
+        o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -57,11 +61,13 @@ builder.Services.AddScoped<IBarOrderService, SqlBarOrderService>();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+// ✅ Swagger habilitado SIEMPRE (Production incluido)
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Backend-ZS.API v1");
+    c.RoutePrefix = "swagger"; // https://zs-backend-api-fbb7ftdzfxd3bqh9.canadacentral-01.azurewebsites.net/swagger
+});
 
 app.UseHttpsRedirection();
 
@@ -70,4 +76,5 @@ app.UseCors(corsPolicy);
 
 app.UseAuthorization();
 app.MapControllers();
+
 app.Run();
