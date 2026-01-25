@@ -9,7 +9,5 @@
 
         public Guid? TransactionId { get; set; }
         public DateTime? LastAssignedAt { get; set; }
-
-        public TransactionDto? Transaction { get; set; }
     }
 }

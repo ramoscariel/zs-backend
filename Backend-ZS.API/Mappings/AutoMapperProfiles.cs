@@ -19,8 +19,9 @@ namespace Backend_ZS.API.Mappings
             // TransactionItem Mappings
             CreateMap<TransactionItem, TransactionItemDto>();
 
-            // Transaction Mappings
-            CreateMap<Transaction, TransactionDto>();
+            // Transaction Mappings (✅ incluir Keys y evitar sorpresas por convención)
+            CreateMap<Transaction, TransactionDto>()
+                .ForMember(d => d.Keys, opt => opt.MapFrom(s => s.Keys));
             CreateMap<TransactionRequestDto, Transaction>();
 
             // Payment Mappings
@@ -38,7 +39,6 @@ namespace Backend_ZS.API.Mappings
             CreateMap<BarOrderDetailCreateRequestDto, BarOrderDetail>();
             CreateMap<BarOrderDetailUpdateRequestDto, BarOrderDetail>();
 
-            // Key Mappings (linked to Transaction for POS)
             CreateMap<Key, KeyDto>();
 
             // Al mapear request -> domain:

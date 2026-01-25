@@ -13,9 +13,11 @@ namespace Backend_ZS.API.Models.DTO
         public Guid ClientId { get; set; }
         public Guid CashBoxId { get; set; }
 
-        // Navigation Properties
         public ClientDto Client { get; set; }
         public ICollection<TransactionItemDto> TransactionItems { get; set; }
         public ICollection<PaymentDto> Payments { get; set; }
+
+        // ✅ NUEVO
+        public ICollection<KeyDto> Keys { get; set; } = new List<KeyDto>();
     }
 }

@@ -4,6 +4,7 @@ using Backend_ZS.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend_ZS.API.Migrations
 {
     [DbContext(typeof(ZsDbContext))]
-    partial class ZsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260125185540_Fix_TransactionItem_Cascade")]
+    partial class Fix_TransactionItem_Cascade
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -700,9 +703,8 @@ namespace Backend_ZS.API.Migrations
             modelBuilder.Entity("Backend_ZS.API.Models.Domain.Key", b =>
                 {
                     b.HasOne("Backend_ZS.API.Models.Domain.Transaction", "Transaction")
-                        .WithMany("Keys")
-                        .HasForeignKey("TransactionId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .WithMany()
+                        .HasForeignKey("TransactionId");
 
                     b.Navigation("Transaction");
                 });
@@ -758,8 +760,6 @@ namespace Backend_ZS.API.Migrations
 
             modelBuilder.Entity("Backend_ZS.API.Models.Domain.Transaction", b =>
                 {
-                    b.Navigation("Keys");
-
                     b.Navigation("Payments");
 
                     b.Navigation("TransactionItems");

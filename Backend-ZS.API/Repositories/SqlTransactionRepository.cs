@@ -14,20 +14,21 @@ namespace Backend_ZS.API.Repositories
         public async Task<List<Transaction>> GetAllAsync()
         {
             return await dbContext.Transactions
-                .Include(t => t.CashBox)
+                .Include(t => t.CashBox)    
                 .Include(t => t.Client)
                 .Include(t => t.TransactionItems)
                 .Include(t => t.Payments)
+                .Include(t => t.Keys) // ✅
                 .ToListAsync();
         }
-
         public async Task<Transaction?> GetByIdAsync(Guid id)
         {
             return await dbContext.Transactions
                 .Include(t => t.CashBox)
-                .Include(t=> t.Client)
-                .Include(t=> t.TransactionItems)
-                .Include(t=> t.Payments)
+                .Include(t => t.Client)
+                .Include(t => t.TransactionItems)
+                .Include(t => t.Payments)
+                .Include(t => t.Keys) // ✅
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 

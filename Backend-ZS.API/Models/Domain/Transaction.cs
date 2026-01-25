@@ -4,7 +4,6 @@
     {
         public Guid Id { get; set; }
 
-        // Cuenta POS: entrada/salida
         public DateTime OpenedAt { get; set; } = DateTime.UtcNow;
         public DateTime? ClosedAt { get; set; }
 
@@ -12,14 +11,15 @@
 
         public Guid ClientId { get; set; }
 
-        // ✅ Caja diaria obligatoria
         public Guid CashBoxId { get; set; }
         public CashBox CashBox { get; set; }
 
-        // Navigation Properties
         public Client Client { get; set; }
         public ICollection<TransactionItem> TransactionItems { get; set; } = new List<TransactionItem>();
         public ICollection<Payment> Payments { get; set; } = new List<Payment>();
+
+        // ✅ NUEVO: llaves asignadas a la cuenta
+        public ICollection<Key> Keys { get; set; } = new List<Key>();
     }
 
     public enum TransactionStatus

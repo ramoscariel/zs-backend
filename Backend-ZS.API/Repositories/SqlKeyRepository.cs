@@ -15,15 +15,17 @@ namespace Backend_ZS.API.Repositories
 
         public async Task<List<Key>> GetAllAsync()
         {
+            // ✅ Lockers necesita TODAS las llaves, sin incluir Transaction (evita ciclos/payload gigante)
             return await dbContext.Keys
-                .Include(k => k.Transaction)
+                .AsNoTracking()
+                .OrderBy(k => k.KeyCode)
                 .ToListAsync();
         }
 
         public async Task<Key?> GetByIdAsync(Guid id)
         {
             return await dbContext.Keys
-                .Include(k => k.Transaction)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(k => k.Id == id);
         }
 
@@ -32,22 +34,30 @@ namespace Backend_ZS.API.Repositories
             var existingKey = await dbContext.Keys.FirstOrDefaultAsync(k => k.Id == id);
             if (existingKey == null) return null;
 
-            // Only update LastAssignedTo/LastAssignedAt if explicitly provided
-            // This preserves history when key is returned (available: true without new assignment)
-            if (key.LastAssignedAt.HasValue)
+            // ✅ Permitir asignar / liberar llave desde POS/Lockers
+            // Si viene TransactionId:
+            // - asigna: Available=false, LastAssignedAt=now
+            // - libera: TransactionId=null, Available=true
+            existingKey.TransactionId = key.TransactionId;
+
+            if (key.TransactionId.HasValue)
             {
-                existingKey.LastAssignedAt = key.LastAssignedAt ?? DateTime.UtcNow;
+                existingKey.Available = false;
+                existingKey.LastAssignedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                existingKey.Available = true;
             }
 
-            existingKey.Available = key.Available;
+            // Campos editables
             existingKey.Notes = key.Notes;
 
             await dbContext.SaveChangesAsync();
 
             return await dbContext.Keys
-                .Include(k => k.Transaction)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(k => k.Id == id);
         }
-
     }
 }
