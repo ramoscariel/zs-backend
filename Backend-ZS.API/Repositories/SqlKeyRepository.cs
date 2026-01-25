@@ -16,14 +16,14 @@ namespace Backend_ZS.API.Repositories
         public async Task<List<Key>> GetAllAsync()
         {
             return await dbContext.Keys
-                .Include(k => k.LastAssignedClient)
+                .Include(k => k.Transaction)
                 .ToListAsync();
         }
 
         public async Task<Key?> GetByIdAsync(Guid id)
         {
             return await dbContext.Keys
-                .Include(k => k.LastAssignedClient)
+                .Include(k => k.Transaction)
                 .FirstOrDefaultAsync(k => k.Id == id);
         }
 
@@ -34,9 +34,8 @@ namespace Backend_ZS.API.Repositories
 
             // Only update LastAssignedTo/LastAssignedAt if explicitly provided
             // This preserves history when key is returned (available: true without new assignment)
-            if (key.LastAssignedTo.HasValue)
+            if (key.LastAssignedAt.HasValue)
             {
-                existingKey.LastAssignedTo = key.LastAssignedTo;
                 existingKey.LastAssignedAt = key.LastAssignedAt ?? DateTime.UtcNow;
             }
 
@@ -46,7 +45,7 @@ namespace Backend_ZS.API.Repositories
             await dbContext.SaveChangesAsync();
 
             return await dbContext.Keys
-                .Include(k => k.LastAssignedClient)
+                .Include(k => k.Transaction)
                 .FirstOrDefaultAsync(k => k.Id == id);
         }
 

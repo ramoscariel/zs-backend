@@ -83,11 +83,22 @@ namespace Backend_ZS.API.Controllers
         [HttpPost("{id:guid}/close")]
         public async Task<IActionResult> Close([FromRoute] Guid id)
         {
-            var tx = await dbContext.Transactions.FirstOrDefaultAsync(x => x.Id == id);
+            var tx = await dbContext.Transactions
+                .Include(t => t.TransactionItems)
+                .Include(t => t.Payments)
+                .FirstOrDefaultAsync(x => x.Id == id);
             if (tx == null) return NotFound();
 
             if (tx.Status == TransactionStatus.Closed)
                 return Conflict("La cuenta ya está cerrada.");
+
+            // Validate balance is zero before closing
+            var totalCharges = tx.TransactionItems?.Sum(i => (decimal)i.Total) ?? 0;
+            var totalPayments = tx.Payments?.Sum(p => (decimal)p.Total) ?? 0;
+            var pendingBalance = totalCharges - totalPayments;
+
+            if (pendingBalance > 0)
+                return Conflict($"No se puede cerrar. Saldo pendiente: ${pendingBalance:F2}");
 
             tx.Status = TransactionStatus.Closed;
             tx.ClosedAt = DateTime.UtcNow;
@@ -97,6 +108,65 @@ namespace Backend_ZS.API.Controllers
             // devolver con includes
             var full = await transactionRepository.GetByIdAsync(id);
             return Ok(mapper.Map<TransactionDto>(full));
+        }
+
+        // ✅ Get transaction detail for POS view
+        [HttpGet("{id:guid}/detail")]
+        public async Task<IActionResult> GetDetail([FromRoute] Guid id)
+        {
+            var tx = await dbContext.Transactions
+                .Include(t => t.Client)
+                .Include(t => t.TransactionItems)
+                .Include(t => t.Payments)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (tx == null) return NotFound();
+
+            // Get entrances
+            var entrances = await dbContext.EntranceTransactions
+                .Where(e => e.TransactionId == id)
+                .ToListAsync();
+
+            // Get parkings
+            var parkings = await dbContext.Parkings
+                .Where(p => p.TransactionId == id)
+                .ToListAsync();
+
+            // Get bar orders with details
+            var barOrders = await dbContext.BarOrders
+                .Include(b => b.Details)
+                    .ThenInclude(d => d.BarProduct)
+                .Where(b => b.TransactionId == id)
+                .ToListAsync();
+
+            // Get access cards
+            var accessCards = await dbContext.AccessCards
+                .Where(a => a.TransactionId == id)
+                .ToListAsync();
+
+            // Get keys assigned to this transaction
+            var keys = await dbContext.Keys
+                .Where(k => k.TransactionId == id)
+                .ToListAsync();
+
+            // Calculate totals
+            var totalCharges = tx.TransactionItems?.Sum(i => (decimal)i.Total) ?? 0;
+            var totalPayments = tx.Payments?.Sum(p => (decimal)p.Total) ?? 0;
+
+            var detail = new TransactionDetailDto
+            {
+                Transaction = mapper.Map<TransactionDto>(tx),
+                Entrances = mapper.Map<List<EntranceTransactionDto>>(entrances),
+                Parkings = mapper.Map<List<ParkingDto>>(parkings),
+                BarOrders = mapper.Map<List<BarOrderDto>>(barOrders),
+                AccessCards = mapper.Map<List<AccessCardDto>>(accessCards),
+                Keys = mapper.Map<List<KeyDto>>(keys),
+                TotalCharges = totalCharges,
+                TotalPayments = totalPayments,
+                PendingBalance = totalCharges - totalPayments
+            };
+
+            return Ok(detail);
         }
 
         [HttpPut("{id:guid}")]

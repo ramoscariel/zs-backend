@@ -7,15 +7,15 @@ namespace Backend_ZS.API.Models.Domain
         public Guid Id { get; set; }
         public string KeyCode { get; set; } = null!;
 
-        public Guid? LastAssignedTo { get; set; }
+        // Link to transaction for POS tracking
+        public Guid? TransactionId { get; set; }
 
-        // ✅ NUEVO
+        [ForeignKey(nameof(TransactionId))]
+        public Transaction? Transaction { get; set; }
+
         public DateTime? LastAssignedAt { get; set; }
 
         public bool Available { get; set; }
         public string? Notes { get; set; }
-
-        [ForeignKey(nameof(LastAssignedTo))]
-        public Client? LastAssignedClient { get; set; }
     }
 }

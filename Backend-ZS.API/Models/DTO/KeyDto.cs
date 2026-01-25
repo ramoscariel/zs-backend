@@ -7,11 +7,9 @@
         public bool Available { get; set; }
         public string? Notes { get; set; }
 
-        public Guid? LastAssignedTo { get; set; }
-
-        // ✅ NUEVO
+        public Guid? TransactionId { get; set; }
         public DateTime? LastAssignedAt { get; set; }
 
-        public ClientDto? LastAssignedClient { get; set; }
+        public TransactionDto? Transaction { get; set; }
     }
 }
