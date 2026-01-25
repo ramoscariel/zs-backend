@@ -55,7 +55,7 @@ namespace Backend_ZS.API.Controllers
             var cashBox = new CashBox
             {
                 Id = Guid.NewGuid(),
-                Status = CashBoxStatus.Open,
+                Status = CashBoxStatus.Open,  // ✅ Enum directo, no cashBox.Status.ToString()
                 OpenedAt = DateTime.UtcNow,
                 OpeningBalance = req.OpeningBalance
             };

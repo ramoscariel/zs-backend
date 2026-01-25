@@ -76,6 +76,7 @@ namespace Backend_ZS.API.Mappings
 
             // CashBox
             CreateMap<CashBox, CashBoxDto>();
+
         }
     }
 }
