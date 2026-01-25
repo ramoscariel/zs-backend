@@ -40,7 +40,13 @@ namespace Backend_ZS.API.Data
 
             modelBuilder.Entity<Transaction>(b =>
             {
-              b.HasMany(t => t.Keys)
+
+                            b.HasMany(t => t.TransactionItems)
+             .WithOne(i => i.Transaction)
+             .HasForeignKey(i => i.TransactionId)
+             .OnDelete(DeleteBehavior.Cascade);
+
+                b.HasMany(t => t.Keys)
              .WithOne(k => k.Transaction)
              .HasForeignKey(k => k.TransactionId)
              .OnDelete(DeleteBehavior.SetNull);

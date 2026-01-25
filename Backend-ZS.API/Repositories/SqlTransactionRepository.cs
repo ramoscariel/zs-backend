@@ -57,16 +57,34 @@ namespace Backend_ZS.API.Repositories
 
         public async Task<Transaction?> DeleteAsync(Guid id)
         {
-            var existingTransaction = await dbContext.Transactions.FindAsync(id);
-            if (existingTransaction == null)
-            {
-                return null;
-            }
+            // Cargar con hijos que bloquean el delete
+            var existingTransaction = await dbContext.Transactions
+                .Include(t => t.TransactionItems)
+                .Include(t => t.Payments)
+                .Include(t => t.Keys)
+                .FirstOrDefaultAsync(t => t.Id == id);
 
+            if (existingTransaction == null)
+                return null;
+
+            // 1) Soltar llaves (por seguridad; igual tienes SetNull en FK)
+            foreach (var k in existingTransaction.Keys)
+                k.TransactionId = null;
+
+            // 2) Borrar Payments (si mantienes Restrict en Payments, esto es obligatorio)
+            if (existingTransaction.Payments?.Count > 0)
+                dbContext.Payments.RemoveRange(existingTransaction.Payments);
+
+            // 3) Borrar TransactionItems (TPH: AccessCard/BarOrder/EntranceTransaction/Parking)
+            if (existingTransaction.TransactionItems?.Count > 0)
+                dbContext.Set<TransactionItem>().RemoveRange(existingTransaction.TransactionItems);
+
+            // 4) Borrar Transaction
             dbContext.Transactions.Remove(existingTransaction);
             await dbContext.SaveChangesAsync();
 
             return existingTransaction;
         }
+
     }
 }
