@@ -7,12 +7,16 @@ namespace Backend_ZS.API.Models.Domain
         public Guid Id { get; set; }
         public Guid AccessCardId { get; set; }
 
+        [NotMapped]
         public DateOnly EntranceDate { get; set; }
+
+        [NotMapped]
         public TimeOnly EntranceEntryTime { get; set; }
+
+        [NotMapped]
         public TimeOnly? EntranceExitTime { get; set; }
 
 
-        [NotMapped]
         public DateTime EntryTime
         {
             get => EntranceDate.ToDateTime(EntranceEntryTime);
@@ -23,7 +27,7 @@ namespace Backend_ZS.API.Models.Domain
             }
         }
 
-        [NotMapped]
+
         public DateTime? ExitTime
         {
             get => EntranceExitTime.HasValue

@@ -37,6 +37,7 @@ namespace Backend_ZS.API.Repositories
 
             // Update Properties
             existingpayment.Total = payment.Total;
+            existingpayment.Type = payment.Type;
 
             await dbContext.SaveChangesAsync();
             return existingpayment;
