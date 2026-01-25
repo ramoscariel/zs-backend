@@ -1,9 +1,11 @@
-﻿using Backend_ZS.API.Models.Domain;
+using Backend_ZS.API.Models.Domain;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend_ZS.API.Data
 {
-    public class ZsDbContext : DbContext
+    public class ZsDbContext : IdentityDbContext<ApplicationUser>
     {
         public ZsDbContext(DbContextOptions<ZsDbContext> dbContextOptions) : base(dbContextOptions)
         {
@@ -280,6 +282,40 @@ namespace Backend_ZS.API.Data
             modelBuilder.Entity<Client>().HasData(clients);
             modelBuilder.Entity<BarProduct>().HasData(barProducts);
             modelBuilder.Entity<Key>().HasData(keys);
+
+            // Seed Identity: Admin role and user
+            var adminRoleId = "b1a2c3d4-e5f6-7890-abcd-ef1234567890";
+            var adminUserId = "a1b2c3d4-e5f6-7890-abcd-ef0987654321";
+
+            modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole
+            {
+                Id = adminRoleId,
+                Name = "admin",
+                NormalizedName = "ADMIN",
+                ConcurrencyStamp = adminRoleId
+            });
+
+            // Pre-hashed password for "admin123" using ASP.NET Identity v3
+            const string adminPasswordHash = "AQAAAAIAAYagAAAAELb8N8z5J4X+8rQqYkj8mN5yP+H3N/9TW7wFu3IJ/qj1v7tGF2zK4B2cEy+3nPz2Lw==";
+
+            modelBuilder.Entity<ApplicationUser>().HasData(new ApplicationUser
+            {
+                Id = adminUserId,
+                UserName = "adminzs",
+                NormalizedUserName = "ADMINZS",
+                Email = "admin@zs.com",
+                NormalizedEmail = "ADMIN@ZS.COM",
+                EmailConfirmed = true,
+                SecurityStamp = "c1d2e3f4-a5b6-7890-cdef-1234567890ab",
+                ConcurrencyStamp = "d2e3f4a5-b6c7-8901-def0-234567890abc",
+                PasswordHash = adminPasswordHash
+            });
+
+            modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string>
+            {
+                RoleId = adminRoleId,
+                UserId = adminUserId
+            });
 
             // Configure shared column names for Parking and EntranceTransaction
             // Both implement IEntrance and share the same EntryTime/ExitTime columns

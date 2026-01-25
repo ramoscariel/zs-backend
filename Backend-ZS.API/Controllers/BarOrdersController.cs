@@ -1,8 +1,9 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Backend_ZS.API.Models.Domain;
 using Backend_ZS.API.Models.DTO;
 using Backend_ZS.API.Repositories;
 using Backend_ZS.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,6 +11,7 @@ namespace Backend_ZS.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "admin")]
     public class BarOrdersController : ControllerBase
     {
         private readonly IBarOrderRepository barOrderRepository;

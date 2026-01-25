@@ -1,7 +1,8 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Backend_ZS.API.Data;
 using Backend_ZS.API.Models.Domain;
 using Backend_ZS.API.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +10,7 @@ namespace Backend_ZS.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "admin")]
     public class CashBoxesController : ControllerBase
     {
         private readonly ZsDbContext dbContext;

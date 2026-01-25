@@ -11,45 +11,17 @@ namespace Backend_ZS.API.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Drop previous separate date/time columns only if they exist (avoid errors when already removed)
-            migrationBuilder.Sql(@"
-IF EXISTS (SELECT 1 FROM sys.columns WHERE Name = N'EntranceDate' AND object_id = OBJECT_ID(N'[EntranceAccessCards]'))
-BEGIN
-    DECLARE @var sysname;
-    SELECT @var = [d].[name]
-    FROM [sys].[default_constraints] [d]
-    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[EntranceAccessCards]') AND [c].[name] = N'EntranceDate');
-    IF @var IS NOT NULL EXEC(N'ALTER TABLE [EntranceAccessCards] DROP CONSTRAINT [' + @var + ']');
-    ALTER TABLE [EntranceAccessCards] DROP COLUMN [EntranceDate];
-END
-");
+            migrationBuilder.DropColumn(
+                name: "EntranceDate",
+                table: "EntranceAccessCards");
 
-            migrationBuilder.Sql(@"
-IF EXISTS (SELECT 1 FROM sys.columns WHERE Name = N'EntranceEntryTime' AND object_id = OBJECT_ID(N'[EntranceAccessCards]'))
-BEGIN
-    DECLARE @var sysname;
-    SELECT @var = [d].[name]
-    FROM [sys].[default_constraints] [d]
-    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[EntranceAccessCards]') AND [c].[name] = N'EntranceEntryTime');
-    IF @var IS NOT NULL EXEC(N'ALTER TABLE [EntranceAccessCards] DROP CONSTRAINT [' + @var + ']');
-    ALTER TABLE [EntranceAccessCards] DROP COLUMN [EntranceEntryTime];
-END
-");
+            migrationBuilder.DropColumn(
+                name: "EntranceEntryTime",
+                table: "EntranceAccessCards");
 
-            migrationBuilder.Sql(@"
-IF EXISTS (SELECT 1 FROM sys.columns WHERE Name = N'EntranceExitTime' AND object_id = OBJECT_ID(N'[EntranceAccessCards]'))
-BEGIN
-    DECLARE @var sysname;
-    SELECT @var = [d].[name]
-    FROM [sys].[default_constraints] [d]
-    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[EntranceAccessCards]') AND [c].[name] = N'EntranceExitTime');
-    IF @var IS NOT NULL EXEC(N'ALTER TABLE [EntranceAccessCards] DROP CONSTRAINT [' + @var + ']');
-    ALTER TABLE [EntranceAccessCards] DROP COLUMN [EntranceExitTime];
-END
-");
+            migrationBuilder.DropColumn(
+                name: "EntranceExitTime",
+                table: "EntranceAccessCards");
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "EntryTime",

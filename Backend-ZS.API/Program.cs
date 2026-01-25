@@ -1,9 +1,15 @@
+using System.Text;
 using System.Text.Json.Serialization;
 using Backend_ZS.API.Data;
 using Backend_ZS.API.Mappings;
+using Backend_ZS.API.Models.Domain;
 using Backend_ZS.API.Repositories;
 using Backend_ZS.API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,11 +41,75 @@ builder.Services
     });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Backend-ZS.API", Version = "v1" });
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter your JWT token"
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 // DbContext
 builder.Services.AddDbContext<ZsDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ZSConnectionString")));
+
+// Identity
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6;
+    options.User.RequireUniqueEmail = false;
+})
+.AddEntityFrameworkStores<ZsDbContext>()
+.AddDefaultTokenProviders();
+
+// JWT Authentication
+var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY")
+    ?? builder.Configuration["JwtSettings:Key"]
+    ?? throw new InvalidOperationException("JWT Key is not configured");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        ClockSkew = TimeSpan.Zero
+    };
+});
 
 // AutoMapper
 builder.Services.AddAutoMapper(cfg => { }, typeof(AutoMapperProfiles));
@@ -58,15 +128,22 @@ builder.Services.AddScoped<IEntranceAccessCardRepository, SqlEntranceAccessCardR
 
 // Services
 builder.Services.AddScoped<IBarOrderService, SqlBarOrderService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 
-/*using (var scope = app.Services.CreateScope())
+// Seed admin user password on startup (since EF HasData can't use PasswordHasher dynamically)
+using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<ZsDbContext>();
-    db.Database.SetCommandTimeout(300);
-    db.Database.Migrate();
-}*/
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var adminUser = await userManager.FindByNameAsync("adminzs");
+    if (adminUser != null && !await userManager.CheckPasswordAsync(adminUser, "admin123"))
+    {
+        // Reset password to admin123
+        var token = await userManager.GeneratePasswordResetTokenAsync(adminUser);
+        await userManager.ResetPasswordAsync(adminUser, token, "admin123");
+    }
+}
 
 
 // ✅ Swagger habilitado SIEMPRE (Production incluido)
@@ -82,6 +159,7 @@ app.UseHttpsRedirection();
 // --- activar CORS antes de MapControllers ---
 app.UseCors(corsPolicy);
 
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
