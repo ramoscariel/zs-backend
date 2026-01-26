@@ -16,7 +16,7 @@ namespace Backend_ZS.API.Models.Domain
         [NotMapped]
         public TimeOnly? EntranceExitTime { get; set; }
 
-
+        [Column("EntryTime", TypeName = "datetime2")]
         public DateTime EntryTime
         {
             get => EntranceDate.ToDateTime(EntranceEntryTime);
@@ -27,7 +27,7 @@ namespace Backend_ZS.API.Models.Domain
             }
         }
 
-
+        [Column("ExitTime", TypeName = "datetime2")]
         public DateTime? ExitTime
         {
             get => EntranceExitTime.HasValue
