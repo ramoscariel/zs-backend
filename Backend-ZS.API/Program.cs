@@ -154,6 +154,7 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = "swagger"; // https://zs-backend-api-fbb7ftdzfxd3bqh9.canadacentral-01.azurewebsites.net/swagger
 });
 
+
 app.UseHttpsRedirection();
 
 // --- activar CORS antes de MapControllers ---

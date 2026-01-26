@@ -26,22 +26,25 @@ namespace Backend_ZS.API.Controllers
         [HttpGet("today")]
         public async Task<IActionResult> GetToday([FromQuery] DateOnly? date = null)
         {
-            var targetDate = date ?? DateOnly.FromDateTime(DateTime.Now);
+            // Usa UTC consistente con OpenedAt = DateTime.UtcNow
+            var targetDate = date ?? DateOnly.FromDateTime(DateTime.UtcNow);
 
             var cashBox = await dbContext.CashBoxes
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => DateOnly.FromDateTime(x.OpenedAt) == targetDate);
 
-            if (cashBox == null) return NotFound();
+            if (cashBox == null) return NoContent(); // <-- antes: NotFound()
 
             return Ok(mapper.Map<CashBoxDto>(cashBox));
         }
+
 
         // POST: /api/CashBoxes/open
         [HttpPost("open")]
         public async Task<IActionResult> Open([FromBody] OpenCashBoxRequestDto req)
         {
-            var today = DateOnly.FromDateTime(DateTime.Now);
+            var today = DateOnly.FromDateTime(DateTime.UtcNow); // antes DateTime.Now
+
 
             var existing = await dbContext.CashBoxes
                 .FirstOrDefaultAsync(x => DateOnly.FromDateTime(x.OpenedAt) == today);
@@ -78,7 +81,8 @@ namespace Backend_ZS.API.Controllers
             if (cashBox.Status == CashBoxStatus.Open)
                 return Conflict("La caja ya está abierta.");
 
-            var today = DateOnly.FromDateTime(DateTime.Now);
+            var today = DateOnly.FromDateTime(DateTime.UtcNow); // antes DateTime.Now
+
             if (DateOnly.FromDateTime(cashBox.OpenedAt) != today)
                 return Conflict("Solo se puede reabrir una caja del día actual.");
 
