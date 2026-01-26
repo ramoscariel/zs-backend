@@ -6,5 +6,9 @@ namespace Backend_ZS.API.Models.DTO
     {
         [Required]
         public Guid ClientId { get; set; }
+
+        // ✅ obligatorio porque el front ya lo manda
+        [Required]
+        public Guid CashBoxId { get; set; }
     }
 }

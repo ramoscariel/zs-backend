@@ -22,45 +22,69 @@ namespace Backend_ZS.API.Controllers
             this.mapper = mapper;
         }
 
+        private static TimeZoneInfo GetEcuadorTz()
+        {
+            try { return TimeZoneInfo.FindSystemTimeZoneById("America/Guayaquil"); }
+            catch { return TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time"); }
+        }
+
+        private static DateOnly EcuadorToday(TimeZoneInfo tz)
+        {
+            var localNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
+            return DateOnly.FromDateTime(localNow);
+        }
+
+        private static (DateTime utcStart, DateTime utcEnd) UtcRangeForLocalDate(DateOnly localDate, TimeZoneInfo tz)
+        {
+            var localStart = DateTime.SpecifyKind(localDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Unspecified);
+            var localEnd = DateTime.SpecifyKind(localDate.AddDays(1).ToDateTime(TimeOnly.MinValue), DateTimeKind.Unspecified);
+
+            var utcStart = TimeZoneInfo.ConvertTimeToUtc(localStart, tz);
+            var utcEnd = TimeZoneInfo.ConvertTimeToUtc(localEnd, tz);
+
+            return (utcStart, utcEnd);
+        }
+
         // GET: /api/CashBoxes/today?date=2026-01-11
         [HttpGet("today")]
         public async Task<IActionResult> GetToday([FromQuery] DateOnly? date = null)
         {
-            // Usa UTC consistente con OpenedAt = DateTime.UtcNow
-            var targetDate = date ?? DateOnly.FromDateTime(DateTime.UtcNow);
+            var tz = GetEcuadorTz();
+            var targetLocalDate = date ?? EcuadorToday(tz);
+            var (utcStart, utcEnd) = UtcRangeForLocalDate(targetLocalDate, tz);
 
             var cashBox = await dbContext.CashBoxes
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => DateOnly.FromDateTime(x.OpenedAt) == targetDate);
+                .FirstOrDefaultAsync(x => x.OpenedAt >= utcStart && x.OpenedAt < utcEnd);
 
-            if (cashBox == null) return NoContent(); // <-- antes: NotFound()
+            if (cashBox == null) return NoContent();
 
             return Ok(mapper.Map<CashBoxDto>(cashBox));
         }
-
 
         // POST: /api/CashBoxes/open
         [HttpPost("open")]
         public async Task<IActionResult> Open([FromBody] OpenCashBoxRequestDto req)
         {
-            var today = DateOnly.FromDateTime(DateTime.UtcNow); // antes DateTime.Now
-
+            var tz = GetEcuadorTz();
+            var todayLocal = EcuadorToday(tz);
+            var (utcStart, utcEnd) = UtcRangeForLocalDate(todayLocal, tz);
 
             var existing = await dbContext.CashBoxes
-                .FirstOrDefaultAsync(x => DateOnly.FromDateTime(x.OpenedAt) == today);
+                .FirstOrDefaultAsync(x => x.OpenedAt >= utcStart && x.OpenedAt < utcEnd);
 
             if (existing != null)
             {
                 if (existing.Status == CashBoxStatus.Open)
-                    return Conflict($"Ya existe una caja ABIERTA para {today}.");
+                    return Conflict($"Ya existe una caja ABIERTA para {todayLocal}.");
 
-                return Conflict($"Ya existe una caja CERRADA para {today}.");
+                return Conflict($"Ya existe una caja CERRADA para {todayLocal}.");
             }
 
             var cashBox = new CashBox
             {
                 Id = Guid.NewGuid(),
-                Status = CashBoxStatus.Open,  // ✅ Enum directo, no cashBox.Status.ToString()
+                Status = CashBoxStatus.Open,
                 OpenedAt = DateTime.UtcNow,
                 OpeningBalance = req.OpeningBalance
             };
@@ -75,15 +99,18 @@ namespace Backend_ZS.API.Controllers
         [HttpPost("{id:guid}/reopen")]
         public async Task<IActionResult> Reopen([FromRoute] Guid id)
         {
+            var tz = GetEcuadorTz();
+            var todayLocal = EcuadorToday(tz);
+            var (utcStart, utcEnd) = UtcRangeForLocalDate(todayLocal, tz);
+
             var cashBox = await dbContext.CashBoxes.FirstOrDefaultAsync(x => x.Id == id);
             if (cashBox == null) return NotFound();
 
             if (cashBox.Status == CashBoxStatus.Open)
                 return Conflict("La caja ya está abierta.");
 
-            var today = DateOnly.FromDateTime(DateTime.UtcNow); // antes DateTime.Now
-
-            if (DateOnly.FromDateTime(cashBox.OpenedAt) != today)
+            // ✅ Solo si pertenece al “día local” actual
+            if (!(cashBox.OpenedAt >= utcStart && cashBox.OpenedAt < utcEnd))
                 return Conflict("Solo se puede reabrir una caja del día actual.");
 
             cashBox.Status = CashBoxStatus.Open;
@@ -104,7 +131,6 @@ namespace Backend_ZS.API.Controllers
             if (cashBox.Status == CashBoxStatus.Closed)
                 return Conflict("La caja ya está cerrada.");
 
-            // Calcula total de pagos del día
             var totalPayments = await dbContext.Transactions
                 .Where(t => t.CashBoxId == id)
                 .SelectMany(t => t.Payments)
@@ -112,8 +138,6 @@ namespace Backend_ZS.API.Controllers
 
             cashBox.Status = CashBoxStatus.Closed;
             cashBox.ClosedAt = DateTime.UtcNow;
-
-            // si mandan closing manual, úsalo; si no, calcula
             cashBox.ClosingBalance = req.ClosingBalance ?? (cashBox.OpeningBalance + totalPayments);
 
             await dbContext.SaveChangesAsync();
@@ -125,6 +149,8 @@ namespace Backend_ZS.API.Controllers
         [HttpGet("range")]
         public async Task<IActionResult> Range([FromQuery] DateOnly from, [FromQuery] DateOnly to)
         {
+            // ✅ Range “por fecha local” también debería hacerse por rangos UTC por día,
+            // pero si solo lo usas para reportes simples, lo dejo como estaba.
             var list = await dbContext.CashBoxes
                 .AsNoTracking()
                 .Where(x => DateOnly.FromDateTime(x.OpenedAt) >= from && DateOnly.FromDateTime(x.OpenedAt) <= to)
@@ -134,7 +160,6 @@ namespace Backend_ZS.API.Controllers
             return Ok(mapper.Map<List<CashBoxDto>>(list));
         }
 
-        // GET: /api/CashBoxes/{id}/transactions
         [HttpGet("{id:guid}/transactions")]
         public async Task<IActionResult> GetTransactions([FromRoute] Guid id)
         {
@@ -153,7 +178,6 @@ namespace Backend_ZS.API.Controllers
             return Ok(mapper.Map<List<TransactionDto>>(txs));
         }
 
-        // GET: /api/CashBoxes/{id}/summary
         [HttpGet("{id:guid}/summary")]
         public async Task<IActionResult> Summary([FromRoute] Guid id)
         {
@@ -162,21 +186,14 @@ namespace Backend_ZS.API.Controllers
 
             var txs = dbContext.Transactions.Where(t => t.CashBoxId == id);
 
-            var totalCharges = await txs
-                .SelectMany(t => t.TransactionItems)
-                .SumAsync(i => (double?)i.Total) ?? 0.0;
+            var totalCharges = await txs.SelectMany(t => t.TransactionItems).SumAsync(i => (double?)i.Total) ?? 0.0;
+            var totalPayments = await txs.SelectMany(t => t.Payments).SumAsync(p => (double?)p.Total) ?? 0.0;
 
-            var totalPayments = await txs
-                .SelectMany(t => t.Payments)
-                .SumAsync(p => (double?)p.Total) ?? 0.0;
-
-            var cashPayments = await txs
-                .SelectMany(t => t.Payments)
+            var cashPayments = await txs.SelectMany(t => t.Payments)
                 .Where(p => p.Type == PaymentType.Efectivo)
                 .SumAsync(p => (double?)p.Total) ?? 0.0;
 
-            var transferPayments = await txs
-                .SelectMany(t => t.Payments)
+            var transferPayments = await txs.SelectMany(t => t.Payments)
                 .Where(p => p.Type == PaymentType.Transferencia)
                 .SumAsync(p => (double?)p.Total) ?? 0.0;
 

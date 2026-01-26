@@ -25,6 +25,29 @@ namespace Backend_ZS.API.Controllers
             this.mapper = mapper;
         }
 
+        private static TimeZoneInfo GetEcuadorTz()
+        {
+            try { return TimeZoneInfo.FindSystemTimeZoneById("America/Guayaquil"); }
+            catch { return TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time"); }
+        }
+
+        private static DateOnly EcuadorToday(TimeZoneInfo tz)
+        {
+            var localNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
+            return DateOnly.FromDateTime(localNow);
+        }
+
+        private static (DateTime utcStart, DateTime utcEnd) UtcRangeForLocalDate(DateOnly localDate, TimeZoneInfo tz)
+        {
+            var localStart = DateTime.SpecifyKind(localDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Unspecified);
+            var localEnd = DateTime.SpecifyKind(localDate.AddDays(1).ToDateTime(TimeOnly.MinValue), DateTimeKind.Unspecified);
+
+            var utcStart = TimeZoneInfo.ConvertTimeToUtc(localStart, tz);
+            var utcEnd = TimeZoneInfo.ConvertTimeToUtc(localEnd, tz);
+
+            return (utcStart, utcEnd);
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] Guid? cashBoxId = null)
         {
@@ -54,34 +77,69 @@ namespace Backend_ZS.API.Controllers
             return Ok(mapper.Map<TransactionDto>(transactionDomainModel));
         }
 
-        // ✅ Crear cuenta: requiere caja abierta hoy
+        // ✅ Crear cuenta: usa CashBoxId si viene y es válido; si no, usa la caja ABIERTA de HOY (Ecuador)
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] TransactionRequestDto transactionRequestDto)
+        public async Task<IActionResult> Create([FromBody] TransactionRequestDto dto)
         {
-            var today = DateOnly.FromDateTime(DateTime.Now);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var cashBox = await dbContext.CashBoxes
-                .FirstOrDefaultAsync(x => DateOnly.FromDateTime(x.OpenedAt) == today && x.Status == CashBoxStatus.Open);
+            var tz = GetEcuadorTz();
+            var todayLocal = EcuadorToday(tz);
+            var (utcStart, utcEnd) = UtcRangeForLocalDate(todayLocal, tz);
+
+            // 1) Intentar con el CashBoxId que manda el front
+            CashBox? cashBox = null;
+
+            if (dto.CashBoxId != Guid.Empty)
+            {
+                cashBox = await dbContext.CashBoxes.FirstOrDefaultAsync(x =>
+                    x.Id == dto.CashBoxId &&
+                    x.Status == CashBoxStatus.Open &&
+                    x.OpenedAt >= utcStart && x.OpenedAt < utcEnd
+                );
+            }
+
+            // 2) Fallback: caja abierta de HOY (Ecuador) aunque el front mande un id malo/viejo
+            if (cashBox == null)
+            {
+                cashBox = await dbContext.CashBoxes
+                    .OrderByDescending(x => x.OpenedAt)
+                    .FirstOrDefaultAsync(x =>
+                        x.Status == CashBoxStatus.Open &&
+                        x.OpenedAt >= utcStart && x.OpenedAt < utcEnd
+                    );
+            }
 
             if (cashBox == null)
-                return Conflict("No hay caja abierta hoy. Abre caja antes de crear una cuenta.");
+                return Conflict("No hay caja ABIERTA válida para hoy (Ecuador). Abre caja antes de crear una cuenta.");
+
+            // 3) Evitar duplicado: cliente con cuenta abierta en esa caja
+            var hasOpen = await dbContext.Transactions.AnyAsync(t =>
+                t.ClientId == dto.ClientId &&
+                t.CashBoxId == cashBox.Id &&
+                t.Status == TransactionStatus.Open
+            );
+
+            if (hasOpen)
+                return Conflict("El cliente ya tiene una cuenta ABIERTA en la caja actual.");
 
             var transaction = new Transaction
             {
                 Id = Guid.NewGuid(),
-                ClientId = transactionRequestDto.ClientId,
+                ClientId = dto.ClientId,
                 CashBoxId = cashBox.Id,
                 OpenedAt = DateTime.UtcNow,
                 Status = TransactionStatus.Open
             };
 
-            transaction = await transactionRepository.AddAsync(transaction);
+            await transactionRepository.AddAsync(transaction);
 
-            var dto = mapper.Map<TransactionDto>(transaction);
-            return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
+            var outDto = mapper.Map<TransactionDto>(transaction);
+            return CreatedAtAction(nameof(GetById), new { id = outDto.Id }, outDto);
         }
 
-        // ✅ Cerrar cuenta
+
         [HttpPost("{id:guid}/close")]
         public async Task<IActionResult> Close([FromRoute] Guid id)
         {
@@ -89,12 +147,12 @@ namespace Backend_ZS.API.Controllers
                 .Include(t => t.TransactionItems)
                 .Include(t => t.Payments)
                 .FirstOrDefaultAsync(x => x.Id == id);
+
             if (tx == null) return NotFound();
 
             if (tx.Status == TransactionStatus.Closed)
                 return Conflict("La cuenta ya está cerrada.");
 
-            // Validate balance is zero before closing
             var totalCharges = tx.TransactionItems?.Sum(i => (decimal)i.Total) ?? 0;
             var totalPayments = tx.Payments?.Sum(p => (decimal)p.Total) ?? 0;
             var pendingBalance = totalCharges - totalPayments;
@@ -107,12 +165,10 @@ namespace Backend_ZS.API.Controllers
 
             await dbContext.SaveChangesAsync();
 
-            // devolver con includes
             var full = await transactionRepository.GetByIdAsync(id);
             return Ok(mapper.Map<TransactionDto>(full));
         }
 
-        // ✅ Get transaction detail for POS view
         [HttpGet("{id:guid}/detail")]
         public async Task<IActionResult> GetDetail([FromRoute] Guid id)
         {
@@ -124,34 +180,18 @@ namespace Backend_ZS.API.Controllers
 
             if (tx == null) return NotFound();
 
-            // Get entrances
-            var entrances = await dbContext.EntranceTransactions
-                .Where(e => e.TransactionId == id)
-                .ToListAsync();
+            var entrances = await dbContext.EntranceTransactions.Where(e => e.TransactionId == id).ToListAsync();
+            var parkings = await dbContext.Parkings.Where(p => p.TransactionId == id).ToListAsync();
 
-            // Get parkings
-            var parkings = await dbContext.Parkings
-                .Where(p => p.TransactionId == id)
-                .ToListAsync();
-
-            // Get bar orders with details
             var barOrders = await dbContext.BarOrders
                 .Include(b => b.Details)
                     .ThenInclude(d => d.BarProduct)
                 .Where(b => b.TransactionId == id)
                 .ToListAsync();
 
-            // Get access cards
-            var accessCards = await dbContext.AccessCards
-                .Where(a => a.TransactionId == id)
-                .ToListAsync();
+            var accessCards = await dbContext.AccessCards.Where(a => a.TransactionId == id).ToListAsync();
+            var keys = await dbContext.Keys.Where(k => k.TransactionId == id).ToListAsync();
 
-            // Get keys assigned to this transaction
-            var keys = await dbContext.Keys
-                .Where(k => k.TransactionId == id)
-                .ToListAsync();
-
-            // Calculate totals
             var totalCharges = tx.TransactionItems?.Sum(i => (decimal)i.Total) ?? 0;
             var totalPayments = tx.Payments?.Sum(p => (decimal)p.Total) ?? 0;
 
@@ -172,13 +212,12 @@ namespace Backend_ZS.API.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] TransactionRequestDto transactionRequestDto)
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] TransactionRequestDto dto)
         {
-            // Solo permito cambiar clientId. NO toco cashBoxId.
             var existing = await dbContext.Transactions.FirstOrDefaultAsync(x => x.Id == id);
             if (existing == null) return NotFound();
 
-            existing.ClientId = transactionRequestDto.ClientId;
+            existing.ClientId = dto.ClientId;
             await dbContext.SaveChangesAsync();
 
             var full = await transactionRepository.GetByIdAsync(id);
